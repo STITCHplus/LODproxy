@@ -20,13 +20,13 @@
 ## along with this program. if not, see <http://www.gnu.org/licenses/>.
 ##
 
-
 import os
 import sys
 import time
 import logging
 import urllib2
 import tempfile
+import hashlib
 import simplejson
 
 from pprint import pprint
@@ -65,14 +65,32 @@ class Pickle(Storage):
     def __init__(self, config):
         Storage.__init__(self, config)
 
+    def get(self, key):
+        if os.path.isfile(self.config["tmp_path"] + os.sep + hashlib.md5(key).hexdigest()) and not key in self.data:
+            log("Reading %s from %s%s" % (key, self.config["tmp_path"]+os.sep, hashlib.md5(key).hexdigest()))
+            with open(self.config["tmp_path"] + os.sep + hashlib.md5(key).hexdigest()) as fh:
+                data = pickle.load(fh)
+                self.data[key] = data
+        data = Storage.get(self, key)
+        return(data)
+
     def store(self, key, data=""):
         Storage.store(self, key, data)
-        log("Storing %s into %s" % (key, self.config["tmp_path"]))
-    
+        if not os.path.isdir(self.config["tmp_path"]):
+            try:
+                os.makedirs(self.config["tmp_path"])
+            except:
+                sys.stderr.write("Could not create directory %s" % self.config["tmp_path"])
+                sys.exit(-1)
+
+        log("Storing %s into %s%s" % (key, self.config["tmp_path"], hashlib.md5(key).hexdigest()))
+        with open("%s%s" % (self.config["tmp_path"]+os.sep, hashlib.md5(key).hexdigest()) , "wb") as fh:
+            pickle.dump(data, fh)
+
 class backend(object):
     prefered_backends = "pymongo", "couchdb", "sqlite3", "memcache", "pickle", "files"
     current_backend = False
-    config = { "tmp_path" : tempfile.gettempdir()+os.sep+"lod"+os.sep,
+    config = { "tmp_path" : tempfile.gettempdir()+os.sep+"lod",
                  "hostname" : None,
                  "portname" : None }
 
@@ -181,20 +199,24 @@ def get_data_record(record_name = "Amsterdam", baseurl = "http://dbpedia.org/dat
     else:
         log("Did not get a 200 ok response, got %i" % (response.getcode()))
         return(res)
-    for key in res["data"].iteritems():
-        if "http://dbpedia.org/ontology/wikiPageRedirects" in key:
-            res["redirect_to"] = res["data"][key]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"]
-            res["data"] = ""
+
+    if name == "dbpedia":
+        for key in res["data"].iteritems():
+            if "http://dbpedia.org/ontology/wikiPageRedirects" in key:
+                res["redirect_to"] = res["data"][key]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"]
+                res["data"] = ""
     return(res)
 
 if __name__ == "__main__":
-    record = get_data_record("Amsterdam")
-    record = get_data_record("Amsterdam")
-    record = get_data_record("Amsterdam")
+    record = get_data_record("Einstein")
+    record = get_data_record("Einstein")
+    record = get_data_record("Einstein")
+
     if not (record["error"] or record["doesnotexist"]):
         if record["redirect_to"]:
             record=get_dbpedia_record(record["redirect_to"])
         else:
-            print(len(record.keys()))
+            for i in record["data"].keys():
+                print(i)
     elif record["doesnotexist"]:
         log("Recordoesnotexist")
