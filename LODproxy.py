@@ -199,9 +199,9 @@ def get_data_record(record_name = "Amsterdam", baseurl = "http://dbpedia.org/dat
         log("Did not get a 200 ok response, got %i" % (response.getcode()))
         return(res)
     if name == "dbpedia":
-        for key in res["data"]["http://dbpedia.org/resource/Einstein"].iteritems():
+        for key in res["data"]["http://dbpedia.org/resource/"+urllib2.quote(record_name)].iteritems():
             if "http://dbpedia.org/ontology/wikiPageRedirects" in key:
-                res["redirect_to"] = res["data"]["http://dbpedia.org/resource/Einstein"]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"]
+                res["redirect_to"] = res["data"]["http://dbpedia.org/resource/"+urllib2.quote(record_name)]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"]
     return(res)
 
 if __name__ == "__main__":
