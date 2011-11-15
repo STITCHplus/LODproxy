@@ -2,3 +2,38 @@ Linked Open Data proxy, example script,
 This is a working example for proxying linked open data objects.
 
 Can be used for making requests to the cloud more reliable.
+
+Program stores json response in a dict on disk or mem or other backend.
+
+Example output:
+
+run 1 :
+
+CRITICAL:root:Setting backend to pickle
+CRITICAL:root:Getting Einstein via backend : Pickle
+CRITICAL:root:No data for Einstein via backend : Pickle
+CRITICAL:root:Getting 887 bytes from http://dbpedia.org/data/Einstein.jsond
+CRITICAL:root:Converted into dict for http://dbpedia.org/data/Einstein.jsond
+CRITICAL:root:Storing Einstein via backend : Pickle
+CRITICAL:root:Storing Einstein into /tmp/lod/654a9672469401ce8348a194f7c5e329
+CRITICAL:root:Redirect to http://dbpedia.org/resource/Albert_Einstein
+CRITICAL:root:Getting http://dbpedia.org/resource/Albert_Einstein via backend : Pickle
+CRITICAL:root:No data for http://dbpedia.org/resource/Albert_Einstein via backend : Pickle
+CRITICAL:root:Getting 71255 bytes from http://dbpedia.org/data/Albert_Einstein.jsond
+CRITICAL:root:Converted into dict for http://dbpedia.org/data/Albert_Einstein.jsond
+CRITICAL:root:Storing http://dbpedia.org/resource/Albert_Einstein via backend : Pickle
+CRITICAL:root:Storing http://dbpedia.org/resource/Albert_Einstein into /tmp/lod/fc56f4d708077103ee1f6d5ebb52753b
+
+
+run 2 :
+
+CRITICAL:root:Setting backend to pickle
+CRITICAL:root:Reading Einstein from /tmp/lod/654a9672469401ce8348a194f7c5e329
+CRITICAL:root:Getting Einstein via backend : Pickle
+CRITICAL:root:Got Einstein via backend : Pickle
+CRITICAL:root:Redirect to http://dbpedia.org/resource/Albert_Einstein
+CRITICAL:root:Reading http://dbpedia.org/resource/Albert_Einstein from /tmp/lod/fc56f4d708077103ee1f6d5ebb52753b
+CRITICAL:root:Getting http://dbpedia.org/resource/Albert_Einstein via backend : Pickle
+CRITICAL:root:Got http://dbpedia.org/resource/Albert_Einstein via backend : Pickle
+
+

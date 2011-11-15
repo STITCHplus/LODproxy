@@ -83,7 +83,7 @@ class Pickle(Storage):
                 sys.stderr.write("Could not create directory %s" % self.config["tmp_path"])
                 sys.exit(-1)
 
-        log("Storing %s into %s%s" % (key, self.config["tmp_path"], hashlib.md5(key).hexdigest()))
+        log("Storing %s into %s%s" % (key, self.config["tmp_path"]+os.sep, hashlib.md5(key).hexdigest()))
         with open("%s%s" % (self.config["tmp_path"]+os.sep, hashlib.md5(key).hexdigest()) , "wb") as fh:
             pickle.dump(data, fh)
 
@@ -131,7 +131,6 @@ class backend(object):
         else:
             return(data)   # else return cahed data.
 
-
 class OpenData(object):
     res = { "error"         : False,
             "redirect_to"   : False,
@@ -149,7 +148,6 @@ class OpenData(object):
     def get_xml():
         pass
 
-            
 @backend
 def get_data_record(record_name = "Amsterdam", baseurl = "http://dbpedia.org/data/%s.jsond", name = "dbpedia"):
     headers = {'Accept' : '*/*'}
@@ -164,6 +162,7 @@ def get_data_record(record_name = "Amsterdam", baseurl = "http://dbpedia.org/dat
             "doesnotexist" : False,
             "key" : "",
             "data" : "" }
+
     res["key"] = key
 
     try:
@@ -199,24 +198,18 @@ def get_data_record(record_name = "Amsterdam", baseurl = "http://dbpedia.org/dat
     else:
         log("Did not get a 200 ok response, got %i" % (response.getcode()))
         return(res)
-
     if name == "dbpedia":
-        for key in res["data"].iteritems():
+        for key in res["data"]["http://dbpedia.org/resource/Einstein"].iteritems():
             if "http://dbpedia.org/ontology/wikiPageRedirects" in key:
-                res["redirect_to"] = res["data"][key]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"]
-                res["data"] = ""
+                res["redirect_to"] = res["data"]["http://dbpedia.org/resource/Einstein"]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"]
     return(res)
 
 if __name__ == "__main__":
     record = get_data_record("Einstein")
-    record = get_data_record("Einstein")
-    record = get_data_record("Einstein")
-
     if not (record["error"] or record["doesnotexist"]):
         if record["redirect_to"]:
-            record=get_dbpedia_record(record["redirect_to"])
-        else:
-            for i in record["data"].keys():
-                print(i)
+            log("Redirect to %s" %  record["redirect_to"])
+            record=get_data_record(record["redirect_to"])
+        print(len(record))
     elif record["doesnotexist"]:
         log("Recordoesnotexist")
