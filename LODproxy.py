@@ -114,6 +114,5 @@ if __name__ == "__main__":
         if record["redirect_to"]:
             backend.log("Redirect to %s" %  record["redirect_to"])
             record=get_data_record(record["redirect_to"])
-        print(record)
     elif record["doesnotexist"]:
         backend.log("Recordoesnotexist")
