@@ -23,6 +23,11 @@
 import os
 import sys
 import time
+import urllib2
+try:
+    import json
+except:
+    import simplejson as json
 
 import backend
 
@@ -66,7 +71,7 @@ def get_data_record(record_name = "Amsterdam", baseurl = "http://dbpedia.org/dat
     try:
         response = urllib2.urlopen(req)
     except (urllib2.URLError, urllib2.HTTPError) as e:
-        log(e, logging.FATAL)   
+        backend.log(e, logging.FATAL)   
         res["error"] = True
         return(res)
  
@@ -83,18 +88,19 @@ def get_data_record(record_name = "Amsterdam", baseurl = "http://dbpedia.org/dat
                 log("Doesnotexists")
                 return(res)
             else:
-                log("Getting %s bytes from %s" % (response_info["Content-Length"], url))
+                backend.log("Getting %s bytes from %s" % (response_info["Content-Length"], url))
         else:
-            log("Getting ? bytes from %s" % (url))
+            backend.log("Getting ? bytes from %s" % (url))
 
+        
         try:
-            res["data"] = simplejson.loads(response.read())
-            log("Converted into dict for %s" % (url))
+            res["data"] = json.loads(response.read())
+            backend.log("Converted into dict for %s" % (url))
         except:
-            log("Failed to convert to dict for %s" % (url) , logging.FATAL)
+            backend.log("Failed to convert to dict for %s" % (url))
             return(res)
     else:
-        log("Did not get a 200 ok response, got %i" % (response.getcode()))
+        backend.log("Did not get a 200 ok response, got %i" % (response.getcode()))
         return(res)
     if name == "dbpedia":
         for key in res["data"]["http://dbpedia.org/resource/"+urllib2.quote(record_name)].iteritems():
@@ -108,6 +114,6 @@ if __name__ == "__main__":
         if record["redirect_to"]:
             backend.log("Redirect to %s" %  record["redirect_to"])
             record=get_data_record(record["redirect_to"])
-        print(len(record["data"]))
+        print(record)
     elif record["doesnotexist"]:
-        log("Recordoesnotexist")
+        backend.log("Recordoesnotexist")
