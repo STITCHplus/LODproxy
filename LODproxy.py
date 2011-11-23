@@ -20,6 +20,8 @@
 ## along with this program. if not, see <http://www.gnu.org/licenses/>.
 ##
 
+__author__ = "Willem Jan Faber"
+
 import os
 import sys
 import urllib2
@@ -28,8 +30,6 @@ import backend
 from pprint import pprint
 
 backend.DEBUG = DEBUG = True
-
-__author__ = "Willem Jan Faber"
 
 @backend.backend
 def get_data_record(*args, **nargs):

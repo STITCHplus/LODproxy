@@ -20,6 +20,8 @@
 ## along with this program. if not, see <http://www.gnu.org/licenses/>.
 ##
 
+__author__ = "Willem Jan Faber"
+
 import os
 import sys
 import tempfile
@@ -175,7 +177,6 @@ class Memcache(Storage):
     def __init__(self, config):
         Storage.__init__(self, config)
         self.mc_handler = memcache.Client(["%s:%s" % (config["hostname_memcache"], config["portname_memcache"])])
-
         # check to see if memcache is up?
 
     def get(self, *args, **nargs):
@@ -240,7 +241,8 @@ class Pickle(Storage):
 class backend(object):
     current_backend = False
 
-    prefered_backends = "pymongo", "couchdb", "sqlite3", "memcache", "pickle", "files"
+    #prefered_backends = "pymongo", "couchdb", "sqlite3", "memcache", "pickle", "files"
+    prefered_backends = "memcache",""
 
     config = {"tmp_path" : tempfile.gettempdir()+os.sep+"lod",
               "hostname_memcache" : "127.0.0.1",
