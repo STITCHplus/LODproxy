@@ -68,7 +68,7 @@ if __name__ == "__main__":
     record = get_data_record("Utrecht", baseurl = "http://ws.geonames.org/searchJSON?q=%s", name = "geonames")
     print(record["data"]["geonames"][0].keys())
 
-    #record = get_data_record("Amsterdam", baseurl = "http://dbpedia.org/data/%s.jsond", name = "dbpedia")
-    #print(type(record))
+    record = get_data_record("Amsterdam", baseurl = "http://dbpedia.org/data/%s.json", name = "dbpedia")
+    print(record["data"]["http://dbpedia.org/resource/Amsterdam"].keys()[:10])
     #record = get_data_record("Appel", baseurl = "http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/%s>&format=json", name = "dbpedia_sparql")
     #print(type(record))

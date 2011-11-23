@@ -150,7 +150,11 @@ class Storage():
         key = args[0]
         log(self.__class__.__name__ + ": Getting %s" % (key))
         if key in self.data:
-            log(self.__class__.__name__ + ": Got %s" % (key))
+            if not self.data[key] == None:
+                log(self.__class__.__name__ + ": Got %s" % (key))
+            else:
+                log(self.__class__.__name__ + ": No data for %s" % (key))
+                return(False)
             return(self.data[key])
         else:
             log(self.__class__.__name__ + ": No data for %s" % (key))
@@ -167,9 +171,12 @@ class Files(Storage):
         Storage.__init__(self, config)
 
 class Memcache(Storage):
+    # mc = memcache.Client(['127.0.0.1:11211'], debug=0)
     def __init__(self, config):
         Storage.__init__(self, config)
         self.mc_handler = memcache.Client(["%s:%s" % (config["hostname_memcache"], config["portname_memcache"])])
+
+        # check to see if memcache is up?
 
     def get(self, *args, **nargs):
         key = args[0]
@@ -186,6 +193,7 @@ class Memcache(Storage):
         data = args[1]
         name = data["name"]
         record_key = name + "_" + key
+        log(self.__class__.__name__ + ": Storing %s" % (record_key))
         self.mc_handler.set(record_key, data)
         Storage.store(self, record_key, data)
 
@@ -207,7 +215,7 @@ class Pickle(Storage):
 
     def store(self, *args, **nargs):
         key = args[0]
-        data = nargs["data"]
+        data = args[1]
         Storage.store(self, key, data)
         if not os.path.isdir(self.config["tmp_path"]):
             try:
