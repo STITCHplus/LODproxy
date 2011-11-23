@@ -2,7 +2,7 @@
 #-*- coding: utf-8 -*-
 
 ##
-## LODproxy.py - LODproxy.
+## backend.py - LODproxy.
 ##
 ## Copyright (c) 2010-2012 Koninklijke Bibliotheek - National library of the Netherlands.
 ##
@@ -164,14 +164,35 @@ class Storage():
 class Files(Storage):
     def __init__(self, config):
         Storage.__init__(self, config)
-'''
+
 class Memcache(Storage):
     def __init__(self, config):
         Storage.__init__(self, config)
+        self.mc_handler = memcache.Client(["%s:%s" % (config["hostname_memcache"], config["portname_memcache"])])
 
     def get(self, *args, **nargs):
         key = args[0]
-'''
+        name = nargs["name"]
+
+        record_key = name + "_" + key
+
+        result = self.mc_handler.get(record_key)
+
+        if not result == None:
+            return(result)
+        else:
+            return(False)
+
+
+    def store(self, *args, **nargs):
+        key = args[0]
+        print(args)
+        name = nargs["name"]
+        data = nargs["data"]
+        
+        record_key = name + "_" + key
+
+        self.mc_handler.set(record_key, data)
 
 class Pickle(Storage):
     def __init__(self, config):
@@ -217,11 +238,13 @@ class Pickle(Storage):
             pickle.dump(data, fh)
 
 class backend(object):
-    prefered_backends = "pymongo", "couchdb", "sqlite3", "memcache", "pickle", "files"
     current_backend = False
-    config = {   "tmp_path" : tempfile.gettempdir()+os.sep+"lod",
-                 "hostname_memcache" : None,
-                 "portname_memcache" : None }
+
+    prefered_backends = "pymongo", "couchdb", "sqlite3", "memcache", "pickle", "files"
+
+    config = {"tmp_path" : tempfile.gettempdir()+os.sep+"lod",
+              "hostname_memcache" : "127.0.0.1",
+              "portname_memcache" : "11211"}
 
     def __init__(self, func, *arg, **narg):
         self.func = func

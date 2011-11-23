@@ -28,10 +28,9 @@ import backend
 from pprint import pprint
 
 backend.DEBUG = DEBUG = True
+
 __author__ = "Willem Jan Faber"
 
-
-#</import>
 @backend.backend
 def get_data_record(*args, **nargs):
     od = backend.OpenData()
