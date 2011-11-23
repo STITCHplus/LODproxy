@@ -9,36 +9,37 @@ Program gets data from inet, and parses it from xml or json to a dict.
 Example output:
 
 run 1:
-
-CRITICAL:root:Setting backend to pickle
-CRITICAL:root:Getting Amsterdam via backend : Pickle
-CRITICAL:root:No data for Amsterdam via backend : Pickle
+CRITICAL:root:backend: Setting backend to pickle
+CRITICAL:root:Pickle: Getting Amsterdam
+CRITICAL:root:Pickle: No data for Amsterdam
 CRITICAL:root:OpenData: Trying to open http://dbpedia.org/data/Amsterdam.jsond.
 CRITICAL:root:OpenData: Response-type data 'json' from http://dbpedia.org/data/Amsterdam.jsond.
 CRITICAL:root:OpenData: Getting 562084 bytes from http://dbpedia.org/data/Amsterdam.jsond
 CRITICAL:root:OpenData: Got 562084 bytes from http://dbpedia.org/data/Amsterdam.jsond
+CRITICAL:root:OpenData: Converted raw data to json.
 CRITICAL:root:Storing Amsterdam via backend : Pickle
-CRITICAL:root:Storing Amsterdam into /tmp/lod/dbpedia/3eb8670d999ac077dd0e2c345cb7c905
+CRITICAL:root:Pickle: Storing Amsterdam into /tmp/lod/dbpedia/3eb8670d999ac077dd0e2c345cb7c905
 <type 'dict'>
-CRITICAL:root:Getting Appel via backend : Pickle
-CRITICAL:root:No data for Appel via backend : Pickle
+
+CRITICAL:root:Pickle: Getting Appel
+CRITICAL:root:Pickle: No data for Appel
 CRITICAL:root:OpenData: Trying to open http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/Appel>&format=json.
 CRITICAL:root:OpenData: Response-type data 'json' from http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/Appel>&format=json.
 CRITICAL:root:OpenData: Getting 10251 bytes from http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/Appel>&format=json
 CRITICAL:root:OpenData: Got 10251 bytes from http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/Appel>&format=json
+CRITICAL:root:OpenData: Converted raw data to json.
 CRITICAL:root:Storing Appel via backend : Pickle
-CRITICAL:root:Storing Appel into /tmp/lod/dbpedia_sparql/4eb0daf0e75aff7a440ab94c5cbb13c0
+CRITICAL:root:Pickle: Storing Appel into /tmp/lod/dbpedia_sparql/4eb0daf0e75aff7a440ab94c5cbb13c0
 <type 'dict'>
 
 run 2:
-
-CRITICAL:root:Setting backend to pickle
-CRITICAL:root:Reading Amsterdam from /tmp/lod/dbpedia/3eb8670d999ac077dd0e2c345cb7c905
-CRITICAL:root:Getting Amsterdam via backend : Pickle
-CRITICAL:root:Got Amsterdam via backend : Pickle
+CRITICAL:root:backend: Setting backend to pickle
+CRITICAL:root:Pickle: Reading 680508 bytes for Amsterdam from /tmp/lod/dbpedia/3eb8670d999ac077dd0e2c345cb7c905
+CRITICAL:root:Pickle: Getting Amsterdam
+CRITICAL:root:Pickle: Got Amsterdam
 <type 'dict'>
-CRITICAL:root:Reading Appel from /tmp/lod/dbpedia_sparql/4eb0daf0e75aff7a440ab94c5cbb13c0
-CRITICAL:root:Getting Appel via backend : Pickle
-CRITICAL:root:Got Appel via backend : Pickle
+CRITICAL:root:Pickle: Reading 12603 bytes for Appel from /tmp/lod/dbpedia_sparql/4eb0daf0e75aff7a440ab94c5cbb13c0
+CRITICAL:root:Pickle: Getting Appel
+CRITICAL:root:Pickle: Got Appel
 <type 'dict'>
 

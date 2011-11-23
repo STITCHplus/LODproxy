@@ -1,33 +1,143 @@
 #!/usr/bin/env python
+#-*- coding: utf-8 -*-
 
-import os, sys, tempfile
-import logging, urllib2, hashlib
+##
+## LODproxy.py - LODproxy.
+##
+## Copyright (c) 2010-2012 Koninklijke Bibliotheek - National library of the Netherlands.
+##
+## this program is free software: you can redistribute it and/or modify
+## it under the terms of the gnu general public license as published by
+## the free software foundation, either version 3 of the license, or
+## (at your option) any later version.
+##
+## this program is distributed in the hope that it will be useful,
+## but without any warranty; without even the implied warranty of
+## merchantability or fitness for a particular purpose. see the
+## gnu general public license for more details.
+##
+## you should have received a copy of the gnu general public license
+## along with this program. if not, see <http://www.gnu.org/licenses/>.
+##
+
+import os
+import sys
+import tempfile
+import logging
+import urllib2
+import hashlib
 
 from pprint import pprint
 
-"""
-    Program written by : Willem Jan Faber
-    This program is licensed under the LGPLv2 or LGPLv3 license using following text:
-
-      This program is free software; you can redistribute it and/or
-      modify it under the terms of the GNU Lesser General Public
-      License as published by the Free Software Foundation; either
-      version 2 of the License, or (at your option) version 3.
-      
-      This program is distributed in the hope that it will be useful,
-      but WITHOUT ANY WARRANTY; without even the implied warranty of
-      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-      Lesser General Public License for more details.
-      
-      You should have received a copy of the GNU Lesser General Public
-      License along with the program; if not, see <http://www.gnu.org/licenses/>
-"""
+try:
+    import json
+except ImportError:
+    try:
+        import simplejson as json
+    except ImportError:
+        sys.stdout.write("Could not import json, please install python-json\n")
+        sys.exit(-1)
+try:
+    from lxml.etree import parse as xml_parse
+    from lxml.etree import Element as xml_Element
+    from lxml.etree import fromstring as xml_fromstring
+except ImportError:
+    try:
+        from xml.etree.cElementTree.etree import parse as xml_parse
+        from xml.etree.cElementTree.etree import Element as xml_Element
+        from xml.etree.cElementTree.etree import fromstring as xml_fromstring
+    except ImportError:
+        sys.stdout.write("Could not import xmllib, please install python-elementtree\n")
+        sys.exit(-1)
 
 DEBUG = True
 
 def log(message, log_level = logging.CRITICAL):
     if DEBUG:
         logging.log(log_level, message)
+
+class OpenData(object):
+    headers = {'Accept' : '*/*'}
+
+    def get_data(self, url, force_type = False):
+        req = urllib2.Request(url = url, headers = self.headers)
+        data = False
+        response_type = "unknown"
+
+        log(self.__class__.__name__ + ": Trying to open %s." % url)
+        try:
+            response = urllib2.urlopen(req)
+        except (urllib2.URLError, urllib2.HTTPError) as e:
+            log(self.__class__.__name__ + ": %s" % str(e))
+            log(self.__class__.__name__ + ": Error while opening %s, Fatal." % url )
+            return(False, response_type)
+     
+        if response.getcode() == 200:
+            response_info = response.info()
+            if "Content-Type" in response_info:
+                if (response_info["Content-Type"].lower().find('json')) > -1:
+                    response_type="json"
+                elif (response_info["Content-Type"].lower().find('xml')) > -1:
+                    response_type = "xml"
+                else:
+                    print(response_info["Content-Type"])
+
+            if force_type:
+                if not force_type == response_type:
+                    response_type = force_type
+                    log(self.__class__.__name__ + ": Response-type data forced to '%s' from %s." % (response_type, url))
+                else: 
+                    log(self.__class__.__name__ + ": Response-type data '%s' from %s." % (response_type, url))
+            else:
+                log(self.__class__.__name__ + ": Response-type data '%s' from %s." % (response_type, url))
+
+            if "Content-Length" in response_info:
+                if int(response_info["Content-Length"]) < 5:    # No json data available, #doesnotexist
+                    log(self.__class__.__name__ + ": Getting %s bytes from %s" % (response_info["Content-Length"], url))
+                else:
+                    log(self.__class__.__name__ + ": Getting %s bytes from %s" % (response_info["Content-Length"], url))
+            else:
+                log(self.__class__.__name__+ ": Getting ? bytes from %s" % (url))
+
+            try:
+                data = response.read()
+                log(self.__class__.__name__+ ": Got %i bytes from %s" % (len(data), url))
+            except:
+                log(self.__class__.__name__ + ": Error while reading data")
+                return(False, response_type)
+
+            if not len(data) > 0:
+                log(self.__class__.__name__+ ": Data size to small (%i bytes) from %s" % (len(data), url))
+                return(False, response_type)
+        else:
+            log(self.__class__.__name__ + ": Did not get a 200 ok response, got %i" % (response.getcode()))
+            return(False, response_type)
+
+        if response_type == "xml":
+            try:
+                data = xml_fromstring(data)
+                log(self.__class__.__name__ + ": Converted raw data to xmletree object.")
+            except:
+                log(self.__class__.__name__ + ": Error while converting raw data to json.")
+                return(False, response_type)
+
+
+        if response_type == "json":
+            try:
+                data = json.loads(data)
+                log(self.__class__.__name__ + ": Converted raw data to json.")
+            except:
+                log(self.__class__.__name__ + ": Error while converting raw data to json.")
+                return(False, response_type)
+
+        return(data, response_type)
+
+    def get_json(self, url):
+        return(self.get_data(url, "json")[0])
+
+    def get_xml(self, url):
+        return(self.get_data(url, "xml")[0])
+
 
 class Storage():
     config = {}
@@ -37,12 +147,12 @@ class Storage():
 
     def get(self, *args, **nargs):
         key = args[0]
-        log("Getting %s via backend : %s" % (key, self.__class__.__name__))
+        log(self.__class__.__name__ + ": Getting %s" % (key))
         if key in self.data:
-            log("Got %s via backend : %s" % (key, self.__class__.__name__))
+            log(self.__class__.__name__ + ": Got %s" % (key))
             return(self.data[key])
         else:
-            log("No data for %s via backend : %s" % (key, self.__class__.__name__))
+            log(self.__class__.__name__ + ": No data for %s" % (key))
             return(False)
     
     def store(self, key, data=""):
@@ -54,6 +164,14 @@ class Storage():
 class Files(Storage):
     def __init__(self, config):
         Storage.__init__(self, config)
+'''
+class Memcache(Storage):
+    def __init__(self, config):
+        Storage.__init__(self, config)
+
+    def get(self, *args, **nargs):
+        key = args[0]
+'''
 
 class Pickle(Storage):
     def __init__(self, config):
@@ -61,10 +179,14 @@ class Pickle(Storage):
 
     def get(self, *args, **nargs):
         key = args[0]
-        self.config["tmp_path"] = self.config["tmp_path"] 
-        if os.path.isfile(self.config["tmp_path"] + os.sep + nargs["name"] + os.sep + hashlib.md5(key).hexdigest()) and not key in self.data:
-            log("Reading %s from %s" % (key, self.config["tmp_path"] +os.sep + nargs["name"] +os.sep + hashlib.md5(key).hexdigest()))
-            with open(self.config["tmp_path"] + os.sep + nargs["name"] + os.sep + hashlib.md5(key).hexdigest()) as fh:
+
+    def get(self, *args, **nargs):
+        key = args[0]
+        filename = self.config["tmp_path"] + os.sep + nargs["name"] + os.sep + hashlib.md5(key).hexdigest()
+        if os.path.isfile(filename) and not key in self.data:
+            size = os.path.getsize(filename)
+            log(self.__class__.__name__ + ": Reading %i bytes for %s from %s" % (size, key, filename))
+            with open(filename) as fh:
                 data = pickle.load(fh)
                 self.data[key] = data
         data = Storage.get(self, key)
@@ -78,17 +200,20 @@ class Pickle(Storage):
             try:
                 os.makedirs(self.config["tmp_path"])
             except:
-                sys.stderr.write("Could not create directory %s" % self.config["tmp_path"])
+                sys.stderr.write(self.__class__.__name__ + ": Could not create directory %s" % self.config["tmp_path"])
                 sys.exit(-1)
         if not os.path.isdir(self.config["tmp_path"]+os.sep+data["name"]):
             try:
                 os.makedirs(self.config["tmp_path"]+os.sep+data["name"])
             except:
-                sys.stderr.write("Could not create directory %s" % self.config["tmp_path"]+os.sep+data["name"])
+                sys.stderr.write(self.__class__.__name__ + "Could not create directory %s" % self.config["tmp_path"]+os.sep+data["name"])
                 sys.exit(-1)
 
-        log("Storing %s into %s%s" % (key, self.config["tmp_path"] + os.sep + data["name"] + os.sep, hashlib.md5(key).hexdigest()))
-        with open("%s%s" % (self.config["tmp_path"] + os.sep + data["name"] + os.sep, hashlib.md5(key).hexdigest()) , "wb") as fh:
+        filename = self.config["tmp_path"] + os.sep + data["name"] + os.sep + hashlib.md5(key).hexdigest()
+    
+        log(self.__class__.__name__ + ": Storing %s into %s" % (key, filename))
+
+        with open(filename, "wb") as fh:
             pickle.dump(data, fh)
 
 class backend(object):
@@ -107,15 +232,15 @@ class backend(object):
                     if getattr(sys.modules[__name__], backend.title()):
                         setattr(sys.modules[__name__], backend, module)
                         self.current_backend = getattr(sys.modules[__name__], backend.title())(self.config)
-                        log("Setting backend to %s" % backend)
+                        log(self.__class__.__name__ + ": Setting backend to %s" % backend)
                         break
                 except AttributeError:
-                    log("Backend %s not implemented yet" % backend)
+                    log(self.__class__.__name__ + ": %s not implemented yet" % backend.title())
             except ImportError:
-                log("Module %s not found on this system" % backend)
+                log(self.__class__.__name__ + ": %s not found on this system" % backend.title())
 
         if self.current_backend == False:
-            log("Falling back to native file backend")
+            log(self.__class__.__name__ + ": Falling back to native file backend")
             self.current_backend = getattr(sys.modules[__name__],  self.prefered_backends[-1].title())(self.config)
             setattr(self, "store", self.current_backend.store)
             setattr(self, "get", self.current_backend.get)
@@ -126,15 +251,14 @@ class backend(object):
     def __repr__(self):
         return("Selected backend : %s " % self.current_backend)
 
-    def __call__(self, *args, **nargs):
+    def __call__(self, *args, **nargs): # call the calling module from the decorator.
         data = self.get(*args, **nargs)
         if not data:
             data = self.func(*args, **nargs)
             if not data["error"]: self.store(*args, data=data)
             return(data)
         else:
-            return(data)   # else return cahed data.
-
+            return(data) 
 
 def main(arg):
     if len(arg)>1:

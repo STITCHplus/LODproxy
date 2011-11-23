@@ -22,7 +22,6 @@
 
 import os
 import sys
-import time
 import urllib2
 import backend
 
@@ -31,95 +30,11 @@ from pprint import pprint
 backend.DEBUG = DEBUG = True
 __author__ = "Willem Jan Faber"
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
 
-try:
-    from lxml.etree import parse as xml_parse
-    from lxml.etree import Element as xml_Element
-    from lxml.etree import fromstring as xml_fromstring
-except ImportError:
-    try:
-        from xml.etree.cElementTree.etree import parse as xml_parse
-        from xml.etree.cElementTree.etree import Element as xml_Element
-        from xml.etree.cElementTree.etree import fromstring as xml_fromstring
-    except ImportError:
-        sys.stdout.write("Could not import xmllib, please install elementtree\n")
-        sys.exit(-1)
-
-class OpenData(object):
-    headers = {'Accept' : '*/*'}
-
-    def get_data(self, url, force_type = False):
-        req = urllib2.Request(url = url, headers = self.headers)
-        data = False
-        response_type = "unknown"
-
-        backend.log(self.__class__.__name__ + ": Trying to open %s." % url)
-        try:
-            response = urllib2.urlopen(req)
-        except (urllib2.URLError, urllib2.HTTPError) as e:
-            backend.log(self.__class__.__name__ + ": %s" % str(e))
-            backend.log(self.__class__.__name__ + ": Error while opening %s, Fatal." % url )
-            return(False, response_type)
-     
-        if response.getcode() == 200:
-            response_info = response.info()
-            if "Content-Type" in response_info:
-                if (response_info["Content-Type"].lower().find('json')) > -1:
-                    response_type="json"
-                elif (response_info["Content-Type"].lower().find('xml')) > -1:
-                    response_type = "xml"
-                else:
-                    print(response_info["Content-Type"])
-
-            if force_type:
-                if not force_type == response_type:
-                    response_type = force_type
-                    backend.log(self.__class__.__name__ + ": Response-type data forced to '%s' from %s." % (response_type, url))
-                else: 
-                    backend.log(self.__class__.__name__ + ": Response-type data '%s' from %s." % (response_type, url))
-            else:
-                backend.log(self.__class__.__name__ + ": Response-type data '%s' from %s." % (response_type, url))
-
-            if "Content-Length" in response_info:
-                if int(response_info["Content-Length"]) < 5:    # No json data available, #doesnotexist
-                    backend.log(self.__class__.__name__ + ": Getting %s bytes from %s" % (response_info["Content-Length"], url))
-                else:
-                    backend.log(self.__class__.__name__ + ": Getting %s bytes from %s" % (response_info["Content-Length"], url))
-            else:
-                backend.log(self.__class__.__name__+ ": Getting ? bytes from %s" % (url))
-
-            try:
-                data = response.read()
-                backend.log(self.__class__.__name__+ ": Got %i bytes from %s" % (len(data), url))
-            except:
-                backend.log(self.__class__.__name__ + ": Error while reading data")
-                return(False, response_type)
-        else:
-            backend.log(self.__class__.__name__ + ": Did not get a 200 ok response, got %i" % (response.getcode()))
-            return(False, response_type)
-
-        if response_type == "xml":
-            data = xml_fromstring(data)
-
-        if response_type == "json":
-            data = json.loads(data)
-
-        return(data, response_type)
-
-    def get_json(self, url):
-        return(self.get_data(url, "json")[0])
-
-    def get_xml(self, url):
-        return(self.get_data(url, "xml")[0])
-
+#</import>
 @backend.backend
 def get_data_record(*args, **nargs):
-    od = OpenData()
-
+    od = backend.OpenData()
     baseurl = nargs["baseurl"]
     record_name = args[0]
     name = nargs["name"]
@@ -155,4 +70,3 @@ if __name__ == "__main__":
     print(type(record))
     record = get_data_record("Appel", baseurl = "http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/%s>&format=json", name = "dbpedia_sparql")
     print(type(record))
-
