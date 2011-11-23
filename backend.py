@@ -60,11 +60,12 @@ class OpenData(object):
     headers = {'Accept' : '*/*'}
 
     def get_data(self, url, force_type = False):
+        response_type = "unknown"
         req = urllib2.Request(url = url, headers = self.headers)
         data = False
-        response_type = "unknown"
 
         log(self.__class__.__name__ + ": Trying to open %s." % url)
+
         try:
             response = urllib2.urlopen(req)
         except (urllib2.URLError, urllib2.HTTPError) as e:
@@ -173,33 +174,24 @@ class Memcache(Storage):
     def get(self, *args, **nargs):
         key = args[0]
         name = nargs["name"]
-
         record_key = name + "_" + key
-
-        result = self.mc_handler.get(record_key)
-
-        if not result == None:
-            return(result)
-        else:
-            return(False)
-
+        if not record_key in self.data:
+            data = self.mc_handler.get(record_key)
+            self.data[record_key] = data
+        data = Storage.get(self, record_key)
+        return(data)
 
     def store(self, *args, **nargs):
         key = args[0]
-        print(args)
-        name = nargs["name"]
-        data = nargs["data"]
-        
+        data = args[1]
+        name = data["name"]
         record_key = name + "_" + key
-
         self.mc_handler.set(record_key, data)
+        Storage.store(self, record_key, data)
 
 class Pickle(Storage):
     def __init__(self, config):
         Storage.__init__(self, config)
-
-    def get(self, *args, **nargs):
-        key = args[0]
 
     def get(self, *args, **nargs):
         key = args[0]
@@ -278,7 +270,7 @@ class backend(object):
         data = self.get(*args, **nargs)
         if not data:
             data = self.func(*args, **nargs)
-            if not data["error"]: self.store(*args, data=data)
+            if not data["error"]: self.store(args[0], data)
             return(data)
         else:
             return(data) 
@@ -290,4 +282,3 @@ def main(arg):
 
 if __name__ == "__main__":
     main(sys.argv)
-
