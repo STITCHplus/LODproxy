@@ -33,11 +33,11 @@ CRITICAL:root:Storing Appel into /tmp/lod/dbpedia_sparql/4eb0daf0e75aff7a440ab94
 run 2:
 
 CRITICAL:root:Setting backend to pickle
-CRITICAL:root:Reading Amsterdam from /tmp/lod/dbpedia3eb8670d999ac077dd0e2c345cb7c905
+CRITICAL:root:Reading Amsterdam from /tmp/lod/dbpedia/3eb8670d999ac077dd0e2c345cb7c905
 CRITICAL:root:Getting Amsterdam via backend : Pickle
 CRITICAL:root:Got Amsterdam via backend : Pickle
 <type 'dict'>
-CRITICAL:root:Reading Appel from /tmp/lod/dbpedia_sparql4eb0daf0e75aff7a440ab94c5cbb13c0
+CRITICAL:root:Reading Appel from /tmp/lod/dbpedia_sparql/4eb0daf0e75aff7a440ab94c5cbb13c0
 CRITICAL:root:Getting Appel via backend : Pickle
 CRITICAL:root:Got Appel via backend : Pickle
 <type 'dict'>
