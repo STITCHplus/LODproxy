@@ -1,39 +1,44 @@
 Linked Open Data proxy, example script, 
+
 This is a working example for proxying linked open data objects.
 
 Can be used for making requests to the cloud more reliable.
 
-Program stores json response in a dict on disk or mem or other backend.
+Program gets data from inet, and parses it from xml or json to a dict.
 
 Example output:
 
-run 1 :
+run 1:
 
 CRITICAL:root:Setting backend to pickle
-CRITICAL:root:Getting Einstein via backend : Pickle
-CRITICAL:root:No data for Einstein via backend : Pickle
-CRITICAL:root:Getting 887 bytes from http://dbpedia.org/data/Einstein.jsond
-CRITICAL:root:Converted into dict for http://dbpedia.org/data/Einstein.jsond
-CRITICAL:root:Storing Einstein via backend : Pickle
-CRITICAL:root:Storing Einstein into /tmp/lod/654a9672469401ce8348a194f7c5e329
-CRITICAL:root:Redirect to http://dbpedia.org/resource/Albert_Einstein
-CRITICAL:root:Getting http://dbpedia.org/resource/Albert_Einstein via backend : Pickle
-CRITICAL:root:No data for http://dbpedia.org/resource/Albert_Einstein via backend : Pickle
-CRITICAL:root:Getting 71255 bytes from http://dbpedia.org/data/Albert_Einstein.jsond
-CRITICAL:root:Converted into dict for http://dbpedia.org/data/Albert_Einstein.jsond
-CRITICAL:root:Storing http://dbpedia.org/resource/Albert_Einstein via backend : Pickle
-CRITICAL:root:Storing http://dbpedia.org/resource/Albert_Einstein into /tmp/lod/fc56f4d708077103ee1f6d5ebb52753b
+CRITICAL:root:Getting Amsterdam via backend : Pickle
+CRITICAL:root:No data for Amsterdam via backend : Pickle
+CRITICAL:root:OpenData: Trying to open http://dbpedia.org/data/Amsterdam.jsond.
+CRITICAL:root:OpenData: Response-type data 'json' from http://dbpedia.org/data/Amsterdam.jsond.
+CRITICAL:root:OpenData: Getting 562084 bytes from http://dbpedia.org/data/Amsterdam.jsond
+CRITICAL:root:OpenData: Got 562084 bytes from http://dbpedia.org/data/Amsterdam.jsond
+CRITICAL:root:Storing Amsterdam via backend : Pickle
+CRITICAL:root:Storing Amsterdam into /tmp/lod/dbpedia/3eb8670d999ac077dd0e2c345cb7c905
+<type 'dict'>
+CRITICAL:root:Getting Appel via backend : Pickle
+CRITICAL:root:No data for Appel via backend : Pickle
+CRITICAL:root:OpenData: Trying to open http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/Appel>&format=json.
+CRITICAL:root:OpenData: Response-type data 'json' from http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/Appel>&format=json.
+CRITICAL:root:OpenData: Getting 10251 bytes from http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/Appel>&format=json
+CRITICAL:root:OpenData: Got 10251 bytes from http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/Appel>&format=json
+CRITICAL:root:Storing Appel via backend : Pickle
+CRITICAL:root:Storing Appel into /tmp/lod/dbpedia_sparql/4eb0daf0e75aff7a440ab94c5cbb13c0
+<type 'dict'>
 
-
-run 2 :
+run 2:
 
 CRITICAL:root:Setting backend to pickle
-CRITICAL:root:Reading Einstein from /tmp/lod/654a9672469401ce8348a194f7c5e329
-CRITICAL:root:Getting Einstein via backend : Pickle
-CRITICAL:root:Got Einstein via backend : Pickle
-CRITICAL:root:Redirect to http://dbpedia.org/resource/Albert_Einstein
-CRITICAL:root:Reading http://dbpedia.org/resource/Albert_Einstein from /tmp/lod/fc56f4d708077103ee1f6d5ebb52753b
-CRITICAL:root:Getting http://dbpedia.org/resource/Albert_Einstein via backend : Pickle
-CRITICAL:root:Got http://dbpedia.org/resource/Albert_Einstein via backend : Pickle
-
+CRITICAL:root:Reading Amsterdam from /tmp/lod/dbpedia3eb8670d999ac077dd0e2c345cb7c905
+CRITICAL:root:Getting Amsterdam via backend : Pickle
+CRITICAL:root:Got Amsterdam via backend : Pickle
+<type 'dict'>
+CRITICAL:root:Reading Appel from /tmp/lod/dbpedia_sparql4eb0daf0e75aff7a440ab94c5cbb13c0
+CRITICAL:root:Getting Appel via backend : Pickle
+CRITICAL:root:Got Appel via backend : Pickle
+<type 'dict'>
 

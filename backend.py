@@ -22,8 +22,12 @@ from pprint import pprint
       You should have received a copy of the GNU Lesser General Public
       License along with the program; if not, see <http://www.gnu.org/licenses/>
 """
+
+DEBUG = True
+
 def log(message, log_level = logging.CRITICAL):
-    logging.log(log_level, message)
+    if DEBUG:
+        logging.log(log_level, message)
 
 class Storage():
     config = {}
@@ -31,7 +35,8 @@ class Storage():
     def __init__(self, config):
         self.config = config
 
-    def get(self, key):
+    def get(self, *args, **nargs):
+        key = args[0]
         log("Getting %s via backend : %s" % (key, self.__class__.__name__))
         if key in self.data:
             log("Got %s via backend : %s" % (key, self.__class__.__name__))
@@ -54,16 +59,20 @@ class Pickle(Storage):
     def __init__(self, config):
         Storage.__init__(self, config)
 
-    def get(self, key):
-        if os.path.isfile(self.config["tmp_path"] + os.sep + hashlib.md5(key).hexdigest()) and not key in self.data:
-            log("Reading %s from %s%s" % (key, self.config["tmp_path"]+os.sep, hashlib.md5(key).hexdigest()))
-            with open(self.config["tmp_path"] + os.sep + hashlib.md5(key).hexdigest()) as fh:
+    def get(self, *args, **nargs):
+        key = args[0]
+        self.config["tmp_path"] = self.config["tmp_path"] 
+        if os.path.isfile(self.config["tmp_path"] + os.sep + nargs["name"] + os.sep + hashlib.md5(key).hexdigest()) and not key in self.data:
+            log("Reading %s from %s%s" % (key, self.config["tmp_path"] +os.sep + nargs["name"], hashlib.md5(key).hexdigest()))
+            with open(self.config["tmp_path"] + os.sep + nargs["name"] + os.sep + hashlib.md5(key).hexdigest()) as fh:
                 data = pickle.load(fh)
                 self.data[key] = data
         data = Storage.get(self, key)
         return(data)
 
-    def store(self, key, data=""):
+    def store(self, *args, **nargs):
+        key = args[0]
+        data = nargs["data"]
         Storage.store(self, key, data)
         if not os.path.isdir(self.config["tmp_path"]):
             try:
@@ -71,9 +80,15 @@ class Pickle(Storage):
             except:
                 sys.stderr.write("Could not create directory %s" % self.config["tmp_path"])
                 sys.exit(-1)
+        if not os.path.isdir(self.config["tmp_path"]+os.sep+data["name"]):
+            try:
+                os.makedirs(self.config["tmp_path"]+os.sep+data["name"])
+            except:
+                sys.stderr.write("Could not create directory %s" % self.config["tmp_path"]+os.sep+data["name"])
+                sys.exit(-1)
 
-        log("Storing %s into %s%s" % (key, self.config["tmp_path"]+os.sep, hashlib.md5(key).hexdigest()))
-        with open("%s%s" % (self.config["tmp_path"]+os.sep, hashlib.md5(key).hexdigest()) , "wb") as fh:
+        log("Storing %s into %s%s" % (key, self.config["tmp_path"] + os.sep + data["name"] + os.sep, hashlib.md5(key).hexdigest()))
+        with open("%s%s" % (self.config["tmp_path"] + os.sep + data["name"] + os.sep, hashlib.md5(key).hexdigest()) , "wb") as fh:
             pickle.dump(data, fh)
 
 class backend(object):
@@ -112,9 +127,9 @@ class backend(object):
         return("Selected backend : %s " % self.current_backend)
 
     def __call__(self, *args, **nargs):
-        data = self.get(*args)
+        data = self.get(*args, **nargs)
         if not data:
-            data = self.func(*args)
+            data = self.func(*args, **nargs)
             if not data["error"]: self.store(*args, data=data)
             return(data)
         else:
