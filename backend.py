@@ -63,7 +63,7 @@ class Pickle(Storage):
         key = args[0]
         self.config["tmp_path"] = self.config["tmp_path"] 
         if os.path.isfile(self.config["tmp_path"] + os.sep + nargs["name"] + os.sep + hashlib.md5(key).hexdigest()) and not key in self.data:
-            log("Reading %s from %s%s" % (key, self.config["tmp_path"] +os.sep + nargs["name"], hashlib.md5(key).hexdigest()))
+            log("Reading %s from %s" % (key, self.config["tmp_path"] +os.sep + nargs["name"] +os.sep + hashlib.md5(key).hexdigest()))
             with open(self.config["tmp_path"] + os.sep + nargs["name"] + os.sep + hashlib.md5(key).hexdigest()) as fh:
                 data = pickle.load(fh)
                 self.data[key] = data
@@ -94,9 +94,9 @@ class Pickle(Storage):
 class backend(object):
     prefered_backends = "pymongo", "couchdb", "sqlite3", "memcache", "pickle", "files"
     current_backend = False
-    config = { "tmp_path" : tempfile.gettempdir()+os.sep+"lod",
-                 "hostname" : None,
-                 "portname" : None }
+    config = {   "tmp_path" : tempfile.gettempdir()+os.sep+"lod",
+                 "hostname_memcache" : None,
+                 "portname_memcache" : None }
 
     def __init__(self, func, *arg, **narg):
         self.func = func
