@@ -179,7 +179,6 @@ class Memcache(Storage):
     def __init__(self, config):
         Storage.__init__(self, config)
         self.mc_handler = memcache.Client(["%s:%s" % (config["hostname_memcache"], config["portname_memcache"])])
-        # check to see if memcache is up?
 
     def get(self, *args, **nargs):
         key = args[0]
@@ -199,6 +198,15 @@ class Memcache(Storage):
         log(self.__class__.__name__ + ": Storing %s" % (record_key))
         self.mc_handler.set(record_key, data)
         Storage.store(self, record_key, data)
+
+    def is_sane(self):
+        self.store("test", {"name" : "test", "data" : "appel"})
+        self.data = {}
+        data = self.get("test", name="test")
+        self.data = {}
+        if type(data) == dict:
+            return(True)
+        return(False)
 
 class Pickle(Storage):
     def __init__(self, config):
@@ -239,12 +247,14 @@ class Pickle(Storage):
 
         with open(filename, "wb") as fh:
             pickle.dump(data, fh)
+    def is_sane(self):
+        return(True)
 
 class backend(object):
     current_backend = False
 
     #prefered_backends = "pymongo", "couchdb", "sqlite3", "memcache", "pickle", "files"
-    prefered_backends = "memcache",""
+    prefered_backends = "memcache", "pickle", "files"
 
     config = {"tmp_path" : tempfile.gettempdir()+os.sep+"lod",
               "hostname_memcache" : "127.0.0.1",
@@ -259,6 +269,8 @@ class backend(object):
                     if getattr(sys.modules[__name__], backend.title()):
                         setattr(sys.modules[__name__], backend, module)
                         self.current_backend = getattr(sys.modules[__name__], backend.title())(self.config)
+                        if not self.current_backend.is_sane():
+                            raise(AttributeError)
                         if DEBUG:
                             log(self.__class__.__name__ + ": Setting backend to %s" % backend)
                         break

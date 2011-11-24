@@ -44,8 +44,6 @@ def get_data_record(*args, **nargs):
     key = urllib2.quote(record_name)
 
     res = { "error" : False,
-            "redirect_to" : False,
-            "doesnotexist" : False,
             "key" : key,
             "name" : name,
             "data" : "", 
@@ -58,7 +56,5 @@ def get_data_record(*args, **nargs):
 
 
 if __name__ == "__main__":
-    record = get_data_record("Amsterdam", baseurl = "http://dbpedia.org/data/%s.json", name = "dbpedia")
-    print(record["data"]["http://dbpedia.org/resource/Amsterdam"].keys()[:10])
-    #record = get_data_record("Appel", baseurl = "http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/%s>&format=json", name = "dbpedia_sparql")
-    #print(type(record))
+    record = get_data_record("Appel", baseurl = "http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/%s>&format=json", name = "dbpedia_sparql")
+    print(record)
