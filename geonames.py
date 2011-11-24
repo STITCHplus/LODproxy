@@ -26,12 +26,23 @@ from LODproxy import *
 
 backend.DEBUG = False
 
-if __name__ == "__main__":
-    record = get_data_record("Utrecht", baseurl = "http://ws.geonames.org/searchJSON?q=%s", name = "geonames")
-    if type(record["data"]) == dict:
-        if record["data"]["totalResultsCount"] > 0:
-            result = record["data"]["geonames"][0]
-            for item in result:
-                print("%12s : %s" % (item, result[item]))
+
+def get_geoname_entry(entry_name):
+    geoname_entry = get_data_record(entry_name, baseurl = "http://ws.geonames.org/searchJSON?q=%s", name = "geonames")
+    return(geoname_entry)
+
+def parse_geoname_entry(entry_name, geoname_entry, record_numer = 0):
+    if not geoname_entry["error"]:
+        print(geoname_entry["data"].keys())
+        result = geoname_entry["data"]["geonames"][record_numer]
+        for item in result:
+            print("%12s : %s" % (item, result[item]))
+        else:
+            print("No entry for record: %s position %i"  % (entry_name, record_numer))
     else:
-        print("Geonames is down..")
+        print("Error while fetching record: %s" % entry_name)
+
+if __name__ == "__main__":
+    entry = "Utrecht"
+    geoname_entry = get_geoname_entry(entry)
+    parse_geoname_entry(entry, geoname_entry)

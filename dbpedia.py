@@ -28,13 +28,62 @@
 __author__ = "Willem Jan Faber"
 
 from LODproxy import *
+from pprint import pprint
 
 backend.DEBUG = False
 
-if __name__ == "__main__":
-    record = get_data_record("Amsterdam", baseurl = "http://dbpedia.org/data/%s.json", name = "dbpedia")
+def _add_record(label, value, record):
+    if not label in record:
+        record[label] = value
+    else:
+        if not type(record[label]) == list:
+            val = record[label]
+            record[label]=[]
+            record[label].append(val)
+            record[label].append(value)
+        else:
+            record[label].append(value)
+    return(record)
 
-    if type(record["data"]) == dict:
-        result = record["data"]["http://dbpedia.org/resource/Amsterdam"]
+
+
+def get_dbpedia_entry(entry_name):
+    dbpedia_entry = get_data_record(entry_name, baseurl = "http://dbpedia.org/data/%s.json", name = "dbpedia")
+    return(dbpedia_entry)
+
+def parse_dbpedia_entry(entry_name, dbpedia_entry, *arg):
+    if not dbpedia_entry["error"]:
+        #print(dbpedia_entry["data"].keys())
+        result = dbpedia_entry["data"]
+        #result = record["data"]["http://dbpedia.org/resource/Amsterdam"]
+        record = {}
         for item in result:
-            print(item.split('/')[-1], result[item])
+            for name in result[item]:
+                for val in result[item][name]:
+                    if "lang" in val:
+                        if not val["lang"] == "en":
+                            label = name.split('/')[-1].split('#')[-1] + "_" + val["lang"]
+                        else:
+                            label = name.split('/')[-1].split('#')[-1]
+                        record = _add_record(label, val["value"], record)
+                    else:
+                        label = name.split('/')[-1].split('#')[-1] 
+                        if not val["value"] == "http://dbpedia.org/resource/%s" % entry_name:
+                            if "value" in val:
+                                record = _add_record(label, val["value"], record)
+                            else:
+                                print(label, val)
+                                #record = _add_record(label, val["value"], record)
+        if len(arg) > 0:
+            for item in record:
+                if item in arg:
+                    print(record[item])
+        else:
+            pprint(record)
+    else:
+        print("Error while fetching record: %s" % entry_name)
+
+if __name__ == "__main__":
+    entry = "Utrecht"
+    dbpedia_entry = get_dbpedia_entry(entry)
+    parse_dbpedia_entry(entry, dbpedia_entry, "depiction","appel")
