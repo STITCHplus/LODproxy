@@ -4,37 +4,18 @@ This is a working example for proxying linked open data objects.
 
 Can be used for making requests to the cloud more reliable.
 
-Program gets data from inet, and parses it from xml or json to a dict.
+Program gets linked open data from a lod source, and parses it from xml or json to a dict.
 
-Example output:
+-- 
+ fixed issues:
+    backend support for memcache.
+    backend support for pickle.
 
-CRITICAL:root:backend: Setting backend to pickle
-CRITICAL:root:Pickle: Getting Utrecht
-CRITICAL:root:Pickle: No data for Utrecht
-CRITICAL:root:OpenData: Trying to open http://ws.geonames.org/searchJSON?q=Utrecht.
-CRITICAL:root:OpenData: Response-type data 'json' from http://ws.geonames.org/searchJSON?q=Utrecht.
-CRITICAL:root:OpenData: Getting ? bytes from http://ws.geonames.org/searchJSON?q=Utrecht
-CRITICAL:root:OpenData: Got 30401 bytes from http://ws.geonames.org/searchJSON?q=Utrecht
-CRITICAL:root:OpenData: Converted raw data to json.
-CRITICAL:root:Storing Utrecht via backend : Pickle
-CRITICAL:root:Pickle: Storing Utrecht into /tmp/lod/geonames/a7e95542fe6c4cc634c9d25bce7a5d58
-[u'fcode', u'name', u'countryCode', u'geonameId', u'toponymName', u'fclName', u'adminCode1', u'countryName', u'lat', u'lng', u'population', u'fcl', u'fcodeName', u'adminName1']
-CRITICAL:root:Pickle: Getting Amsterdam
-CRITICAL:root:Pickle: No data for Amsterdam
-CRITICAL:root:OpenData: Trying to open http://dbpedia.org/data/Amsterdam.json.
-CRITICAL:root:OpenData: Response-type data 'json' from http://dbpedia.org/data/Amsterdam.json.
-CRITICAL:root:OpenData: Getting 562084 bytes from http://dbpedia.org/data/Amsterdam.json
-CRITICAL:root:OpenData: Got 562084 bytes from http://dbpedia.org/data/Amsterdam.json
-CRITICAL:root:OpenData: Converted raw data to json.
-CRITICAL:root:Storing Amsterdam via backend : Pickle
-CRITICAL:root:Pickle: Storing Amsterdam into /tmp/lod/dbpedia/3eb8670d999ac077dd0e2c345cb7c905
-[u'http://dbpedia.org/property/website', u'http://dbpedia.org/property/decSun', u'http://dbpedia.org/property/mayPrecipitationMm', u'http://dbpedia.org/ontology/PopulatedPlace/areaTotal', u'http://dbpedia.org/property/augSun', u'http://dbpedia.org/property/coordinatesRegion', u'http://dbpedia.org/property/coordinatesDisplay', u'http://dbpedia.org/property/janLowC', u'http://dbpedia.org/ontology/isPartOf', u'http://www.w3.org/2003/01/geo/wgs84_pos#long']
-
-RITICAL:root:backend: Setting backend to memcache
-CRITICAL:root:Memcache: Getting geonames_Utrecht
-CRITICAL:root:Memcache: Got geonames_Utrecht
-[u'countryName', u'name', u'countryCode', u'geonameId', u'toponymName', u'fclName', u'fcodeName', u'fcode', u'lat', u'lng', u'adminName1', u'fcl', u'adminCode1', u'population']
-CRITICAL:root:Memcache: Getting dbpedia_Amsterdam
-CRITICAL:root:Memcache: Got dbpedia_Amsterdam
-[u'http://dbpedia.org/property/website', u'http://dbpedia.org/property/decSun', u'http://dbpedia.org/property/mayPrecipitationMm', u'http://dbpedia.org/ontology/PopulatedPlace/areaTotal', u'http://dbpedia.org/property/augSun', u'http://dbpedia.org/property/coordinatesRegion', u'http://dbpedia.org/property/coordinatesDisplay', u'http://dbpedia.org/property/janLowC', u'http://dbpedia.org/property/postalCodeType', u'http://dbpedia.org/ontology/isPartOf']
-
+--
+ todo:
+    improve error handling.
+    is_sane for pickle module. 
+    test xml source.
+    sqlite backend.
+    
+    

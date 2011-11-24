@@ -123,9 +123,8 @@ class OpenData(object):
                 data = xml_fromstring(data)
                 log(self.__class__.__name__ + ": Converted raw data to xmletree object.")
             except:
-                log(self.__class__.__name__ + ": Error while converting raw data to json.")
+                log(self.__class__.__name__ + ": Error while converting raw data to xml.")
                 return(False, response_type)
-
 
         if response_type == "json":
             try:
