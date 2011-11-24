@@ -52,7 +52,7 @@ except ImportError:
         sys.stdout.write("Could not import xmllib, please install python-elementtree\n")
         sys.exit(-1)
 
-DEBUG = True
+DEBUG = False
 
 def log(message, log_level = logging.CRITICAL):
     if DEBUG:
@@ -62,6 +62,7 @@ class OpenData(object):
     headers = {'Accept' : '*/*'}
 
     def get_data(self, url, force_type = False):
+
         response_type = "unknown"
         req = urllib2.Request(url = url, headers = self.headers)
         data = False
@@ -71,8 +72,9 @@ class OpenData(object):
         try:
             response = urllib2.urlopen(req)
         except (urllib2.URLError, urllib2.HTTPError) as e:
-            log(self.__class__.__name__ + ": %s" % str(e))
-            log(self.__class__.__name__ + ": Error while opening %s, Fatal." % url )
+            if DEBUG:
+                log(self.__class__.__name__ + ": %s" % str(e))
+                log(self.__class__.__name__ + ": Error while opening %s, Fatal." % url )
             return(False, response_type)
      
         if response.getcode() == 200:
@@ -257,7 +259,8 @@ class backend(object):
                     if getattr(sys.modules[__name__], backend.title()):
                         setattr(sys.modules[__name__], backend, module)
                         self.current_backend = getattr(sys.modules[__name__], backend.title())(self.config)
-                        log(self.__class__.__name__ + ": Setting backend to %s" % backend)
+                        if DEBUG:
+                            log(self.__class__.__name__ + ": Setting backend to %s" % backend)
                         break
                 except AttributeError:
                     log(self.__class__.__name__ + ": %s not implemented yet" % backend.title())
@@ -265,7 +268,8 @@ class backend(object):
                 log(self.__class__.__name__ + ": %s not found on this system" % backend.title())
 
         if self.current_backend == False:
-            log(self.__class__.__name__ + ": Falling back to native file backend")
+            if DEBUG:
+                log(self.__class__.__name__ + ": Falling back to native file backend")
             self.current_backend = getattr(sys.modules[__name__],  self.prefered_backends[-1].title())(self.config)
             setattr(self, "store", self.current_backend.store)
             setattr(self, "get", self.current_backend.get)

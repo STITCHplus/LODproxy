@@ -29,8 +29,6 @@ import backend
 
 from pprint import pprint
 
-backend.DEBUG = DEBUG = True
-
 @backend.backend
 def get_data_record(*args, **nargs):
     od = backend.OpenData()
@@ -52,22 +50,14 @@ def get_data_record(*args, **nargs):
             "name" : name,
             "data" : "", 
             "url" : url }
-
     if data:
         res["data"] = data
     else:
         res["error"] = True
-     
-    #if name == "dbpedia":
-    #    for key in res["data"]["http://dbpedia.org/resource/"+urllib2.quote(record_name)].iteritems():
-    #        if "http://dbpedia.org/ontology/wikiPageRedirects" in key:
-    #            res["redirect_to"] = res["data"]["http://dbpedia.org/resource/"+urllib2.quote(record_name)]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"]
     return(res)
 
-if __name__ == "__main__":
-    record = get_data_record("Utrecht", baseurl = "http://ws.geonames.org/searchJSON?q=%s", name = "geonames")
-    print(record["data"]["geonames"][0].keys())
 
+if __name__ == "__main__":
     record = get_data_record("Amsterdam", baseurl = "http://dbpedia.org/data/%s.json", name = "dbpedia")
     print(record["data"]["http://dbpedia.org/resource/Amsterdam"].keys()[:10])
     #record = get_data_record("Appel", baseurl = "http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/%s>&format=json", name = "dbpedia_sparql")
