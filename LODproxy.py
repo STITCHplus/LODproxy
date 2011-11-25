@@ -39,9 +39,10 @@ def get_data_record(*args, **nargs):
     if record_name.find('http://') > -1:
         record_name=record_name.split('/')[-1]
 
-    url = baseurl % (urllib2.quote(record_name))
+    url = baseurl % (urllib2.quote(record_name.replace(' ', '_')))
     data = od.get_json(url)
-    key = urllib2.quote(record_name)
+    #key = urllib2.quote(record_name)
+    key = record_name
 
     res = { "error" : False,
             "key" : key,

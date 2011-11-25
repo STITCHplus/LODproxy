@@ -62,8 +62,9 @@ class OpenData(object):
     headers = {'Accept' : '*/*'}
 
     def get_data(self, url, force_type = False):
-
+    
         response_type = "unknown"
+        print(url)
         req = urllib2.Request(url = url, headers = self.headers)
         data = False
 
