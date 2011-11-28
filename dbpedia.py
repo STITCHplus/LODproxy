@@ -41,7 +41,7 @@ __copyright__ = "Copyright (c) 2011 National library of the Netherlands, %s. All
 __licence__ = "GNU GPL"
 
 
-backend.DEBUG = False
+backend.DEBUG = True
 
 def _add_record(label, value, record):
     if type(value) == str or type(value) == unicode:

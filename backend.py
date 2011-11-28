@@ -170,6 +170,19 @@ class Storage():
             log("Storing %s via backend : %s" % (key, self.__class__.__name__))
         return(True)
 
+    def is_sane(self):
+        log("%s: Running sanity test." % (self.__class__.__name__))
+        self.store("test", {"name" : "test", "data" : "appel"})
+        self.data = {}
+        data = self.get("test", name="test")
+        self.data = {}
+        if type(data) == dict:
+            log("%s: Is sane." % (self.__class__.__name__))
+            return(True)
+        log("%s: Is not sane." % (self.__class__.__name__))
+        return(False)
+
+
 class Files(Storage):
     def __init__(self, config):
         Storage.__init__(self, config)
@@ -198,15 +211,6 @@ class Memcache(Storage):
         log(self.__class__.__name__ + ": Storing %s" % (record_key))
         self.mc_handler.set(hashlib.md5(record_key).hexdigest(), data)
         Storage.store(self, record_key, data)
-
-    def is_sane(self):
-        self.store("test", {"name" : "test", "data" : "appel"})
-        self.data = {}
-        data = self.get("test", name="test")
-        self.data = {}
-        if type(data) == dict:
-            return(True)
-        return(False)
 
 class Pickle(Storage):
     def __init__(self, config):
@@ -247,8 +251,6 @@ class Pickle(Storage):
 
         with open(filename, "wb") as fh:
             pickle.dump(data, fh)
-    def is_sane(self):
-        return(True)
 
 class backend(object):
     current_backend = False
@@ -270,10 +272,12 @@ class backend(object):
                         setattr(sys.modules[__name__], backend, module)
                         self.current_backend = getattr(sys.modules[__name__], backend.title())(self.config)
                         if not self.current_backend.is_sane():
-                            raise(AttributeError)
+                            raise EnvironmentError("Not sane.")
                         if DEBUG:
                             log(self.__class__.__name__ + ": Setting backend to %s" % backend)
                         break
+                except EnvironmentError:
+                    log(self.__class__.__name__ + ": %s Failed backend sanity test." % backend.title())
                 except AttributeError:
                     log(self.__class__.__name__ + ": %s not implemented yet" % backend.title())
             except ImportError:
