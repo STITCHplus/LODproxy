@@ -53,7 +53,7 @@ def get_dbpedia_entry(entry_name):
     dbpedia_entry = get_data_record(entry_name, baseurl = "http://dbpedia.org/data/%s.json", name = "dbpedia")
     entry_name = unicode(quote(entry_name.replace(' ','_')),'utf-8')
     if "http://dbpedia.org/ontology/wikiPageRedirects" in dbpedia_entry["data"]["http://dbpedia.org/resource/%s" % entry_name]:
-        entry_name = dbpedia_entry["data"]["http://dbpedia.org/resource/%s" % entry_name]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"]
+        entry_name = dbpedia_entry["data"]["http://dbpedia.org/resource/%s" % entry_name]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"].split('/')[-1].encode('utf-8')
         dbpedia_entry = get_data_record(entry_name, baseurl = "http://dbpedia.org/data/%s.jsond", name = "dbpedia")
     return(dbpedia_entry)
 

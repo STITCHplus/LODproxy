@@ -185,7 +185,7 @@ class Memcache(Storage):
         name = nargs["name"]
         record_key = name + "_" + key
         if not record_key in self.data:
-            data = self.mc_handler.get(record_key)
+            data = self.mc_handler.get(hashlib.md5(record_key).hexdigest())
             self.data[record_key] = data
         data = Storage.get(self, record_key)
         return(data)
@@ -196,7 +196,7 @@ class Memcache(Storage):
         name = data["name"]
         record_key = name + "_" + key
         log(self.__class__.__name__ + ": Storing %s" % (record_key))
-        self.mc_handler.set(record_key, data)
+        self.mc_handler.set(hashlib.md5(record_key).hexdigest(), data)
         Storage.store(self, record_key, data)
 
     def is_sane(self):
