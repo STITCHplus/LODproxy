@@ -103,20 +103,20 @@ class OpenData(object):
                 else:
                     log(self.__class__.__name__ + ": Getting %s bytes from %s" % (response_info["Content-Length"], url))
             else:
-                log(self.__class__.__name__+ ": Getting ? bytes from %s" % (url))
+                log(self.__class__.__name__+ ": Getting ? bytes from %s." % (url))
 
             try:
                 data = response.read()
-                log(self.__class__.__name__+ ": Got %i bytes from %s" % (len(data), url))
+                log(self.__class__.__name__+ ": Got %i bytes from %s." % (len(data), url))
             except:
-                log(self.__class__.__name__ + ": Error while reading data")
+                log(self.__class__.__name__ + ": Error while reading data.")
                 return(False, response_type)
 
             if not len(data) > 0:
-                log(self.__class__.__name__+ ": Data size to small (%i bytes) from %s" % (len(data), url))
+                log(self.__class__.__name__+ ": Data size to small (%i bytes) from %s." % (len(data), url))
                 return(False, response_type)
         else:
-            log(self.__class__.__name__ + ": Did not get a 200 ok response, got %i" % (response.getcode()))
+            log(self.__class__.__name__ + ": Did not get a 200 ok response, got %i." % (response.getcode()))
             return(False, response_type)
 
         if response_type == "xml":
@@ -147,27 +147,32 @@ class OpenData(object):
 class Storage():
     config = {}
     data = {}
+    MAX_INMEM = 2
+
     def __init__(self, config):
         self.config = config
 
     def get(self, *args, **nargs):
         key = args[0]
-        log(self.__class__.__name__ + ": Getting %s" % (key))
+        log(self.__class__.__name__ + ": Getting %s." % (key))
         if key in self.data:
             if not self.data[key] == None:
-                log(self.__class__.__name__ + ": Got %s" % (key))
+                log(self.__class__.__name__ + ": Got %s." % (key))
             else:
-                log(self.__class__.__name__ + ": No data for %s" % (key))
+                log(self.__class__.__name__ + ": No data for %s." % (key))
                 return(False)
             return(self.data[key])
         else:
-            log(self.__class__.__name__ + ": No data for %s" % (key))
+            log(self.__class__.__name__ + ": No data for %s." % (key))
             return(False)
     
     def store(self, key, data=""):
         if not key in self.data:
+            if len(self.data.keys()) > self.MAX_INMEM-1:
+                r = self.data.keys()[0]
+                self.data.pop(r)
             self.data[key] = data
-            log("Storing %s via backend : %s" % (key, self.__class__.__name__))
+            log("Storing %s via backend : %s." % (key, self.__class__.__name__))
         return(True)
 
     def is_sane(self):
@@ -274,18 +279,18 @@ class backend(object):
                         if not self.current_backend.is_sane():
                             raise EnvironmentError("Not sane.")
                         if DEBUG:
-                            log(self.__class__.__name__ + ": Setting backend to %s" % backend)
+                            log(self.__class__.__name__ + ": Setting backend to %s." % backend)
                         break
                 except EnvironmentError:
                     log(self.__class__.__name__ + ": %s Failed backend sanity test." % backend.title())
                 except AttributeError:
-                    log(self.__class__.__name__ + ": %s not implemented yet" % backend.title())
+                    log(self.__class__.__name__ + ": %s not implemented yet." % backend.title())
             except ImportError:
-                log(self.__class__.__name__ + ": %s not found on this system" % backend.title())
+                log(self.__class__.__name__ + ": %s not found on this system." % backend.title())
 
         if self.current_backend == False:
             if DEBUG:
-                log(self.__class__.__name__ + ": Falling back to native file backend")
+                log(self.__class__.__name__ + ": Falling back to native file backend.")
             self.current_backend = getattr(sys.modules[__name__],  self.prefered_backends[-1].title())(self.config)
             setattr(self, "store", self.current_backend.store)
             setattr(self, "get", self.current_backend.get)
@@ -294,7 +299,7 @@ class backend(object):
             setattr(self, "get", self.current_backend.get)
 
     def __repr__(self):
-        return("Selected backend : %s " % self.current_backend)
+        return("Selected backend : %s." % self.current_backend)
 
     def __call__(self, *args, **nargs): # call the calling module from the decorator.
         data = self.get(*args, **nargs)
@@ -305,9 +310,7 @@ class backend(object):
         else:
             return(data) 
 
-def main(arg):
-    if len(arg)>1:
-        print("arguments : "+ ",".join(arg[2:]))
+def main(arguments):
     pass
 
 if __name__ == "__main__":
