@@ -20,20 +20,35 @@
 ## along with this program. if not, see <http://www.gnu.org/licenses/>.
 ##
 
-__author__ = "Willem Jan Faber"
+
+"""
+Dbpedia a easy to use library to get a dbpedia record, cache and parse it.
+    Usage: dbpedia <dbpedia_identifier>
+"""
 
 from LODproxy import *
 from pprint import pprint
 from urllib2 import unquote
 from urllib2 import quote
 
+
+
+__all__ = ["DBPedia"]
+
+__author__ = "Willem Jan Faber <wjf@fe2.nl>"
+__version__ = "1.0"
+__copyright__ = "Copyright (c) 2011 National library of the Netherlands, %s. All rights reserved." % __author__
+__licence__ = "GNU GPL"
+
+
 backend.DEBUG = False
 
 def _add_record(label, value, record):
-    if value.find('http://dbpedia.org/resource/') > -1 and not value.find('/class/') > -1:
-        value = unquote(value.replace("http://dbpedia.org/resource/", "").encode('utf-8')).replace('_', ' ')
-    else:
-        value = value.encode('utf-8')
+    if type(value) == str or type(value) == unicode:
+        if value.find('http://dbpedia.org/resource/') > -1 and not value.find('/class/') > -1:
+            value = unquote(value.replace("http://dbpedia.org/resource/", "").encode('utf-8')).replace('_', ' ')
+        else:
+            value = value.encode('utf-8')
 
     if not label in record:
         record[label] = value
@@ -51,7 +66,7 @@ def _add_record(label, value, record):
 
 def get_dbpedia_entry(entry_name):
     dbpedia_entry = get_data_record(entry_name, baseurl = "http://dbpedia.org/data/%s.json", name = "dbpedia")
-    entry_name = unicode(quote(entry_name.replace(' ','_')),'utf-8')
+    entry_name = unicode(quote(entry_name.replace(' ','_')),'utf-8').encode('utf-8')
     if "http://dbpedia.org/ontology/wikiPageRedirects" in dbpedia_entry["data"]["http://dbpedia.org/resource/%s" % entry_name]:
         entry_name = dbpedia_entry["data"]["http://dbpedia.org/resource/%s" % entry_name]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"].split('/')[-1].encode('utf-8')
         dbpedia_entry = get_data_record(entry_name, baseurl = "http://dbpedia.org/data/%s.jsond", name = "dbpedia")
@@ -96,13 +111,54 @@ def parse_dbpedia_entry(entry_name, dbpedia_entry, *arg):
         print("Error while fetching record: %s" % entry_name)
         return(False)
 
-if __name__ == "__main__":
+
+
+def demo():
     entry = "Einstein"
     dbpedia_entry = get_dbpedia_entry(entry)
-    print parse_dbpedia_entry(dbpedia_entry["key"], dbpedia_entry, "name")["name"]
-    print parse_dbpedia_entry(dbpedia_entry["key"], dbpedia_entry, "abstract_nl")["abstract_nl"]
-    print parse_dbpedia_entry(dbpedia_entry["key"], dbpedia_entry, "spouse")["spouse"]
+    sys.stdout.write(parse_dbpedia_entry(dbpedia_entry["key"], dbpedia_entry, "name")["name"]+'\n')
+    sys.stdout.write(parse_dbpedia_entry(dbpedia_entry["key"], dbpedia_entry, "abstract_nl")["abstract_nl"]+'\n')
+    sys.stdout.write(parse_dbpedia_entry(dbpedia_entry["key"], dbpedia_entry, "spouse")["spouse"]+'\n')
     entry = parse_dbpedia_entry(dbpedia_entry["key"], dbpedia_entry, "spouse")["spouse"]
     dbpedia_entry = get_dbpedia_entry(entry)
-    print parse_dbpedia_entry(dbpedia_entry["key"], dbpedia_entry, "abstract_nl")["abstract_nl"]
-    
+    sys.stdout.write(parse_dbpedia_entry(dbpedia_entry["key"], dbpedia_entry, "abstract_nl")["abstract_nl"]+'\n')
+
+
+def _usage(stream):
+    stream.write(__doc__ + "\n")
+
+
+def main(arguments):
+    from pprint import pprint
+    import getopt
+
+    try:
+        opts, args = getopt.getopt(arguments, "dbpedia:", ["help", "version", "license"])
+    except getopt.GetoptError:
+        sys.exit(2)
+
+    for opt, arg in opts:
+        if opt in ("-l", "--license"):
+            sys.stdout.write(__licence__)
+            sys.exit(0)
+        if opt in ("-h", "--help"):
+            _usage(sys.stdout)
+            sys.exit(0)
+        if opt in ("-v", "--version"):
+            sys.stdout.write(__version__)
+            sys.exit(0)
+    query = "_".join(args)
+
+    if query != "":
+        dbpedia_entry = get_dbpedia_entry(query)
+        pprint( parse_dbpedia_entry(dbpedia_entry["key"], dbpedia_entry))
+    else:
+        sys.stdout.write("Did not get any arguments.\n")
+        _usage(sys.stdout)
+        sys.stdout.write("Running demo..\n\n")
+        demo()
+        sys.stdout.write("\n\n")
+        sys.exit(-1)
+
+if __name__ == "__main__":
+     main(sys.argv[1:])
