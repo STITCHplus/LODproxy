@@ -31,14 +31,18 @@ import hashlib
 
 from pprint import pprint
 
+
 try:
-    import json
+    from cjson import decode as loads
 except ImportError:
     try:
-        import simplejson as json
+        from json import loads
     except ImportError:
-        sys.stdout.write("Could not import json, please install python-json\n")
-        sys.exit(-1)
+        try:
+            from simplejson import loads
+        except ImportError:
+            sys.stdout.write("Could not import json, please install python-json\n")
+            sys.exit(-1)
 try:
     from lxml.etree import parse as xml_parse
     from lxml.etree import Element as xml_Element
@@ -129,7 +133,7 @@ class OpenData(object):
 
         if response_type == "json":
             try:
-                data = json.loads(data)
+                data = loads(data)
                 log(self.__class__.__name__ + ": Converted raw data to json.")
             except:
                 log(self.__class__.__name__ + ": Error while converting raw data to json.")
