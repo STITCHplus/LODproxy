@@ -47,9 +47,10 @@ class DBPedia(object):
     def __init__(self, entry_name):
         self.entry = dbpedia_entry = get_data_record(entry_name, baseurl = "http://dbpedia.org/data/%s.json", name = "dbpedia")
         self.name = unicode(quote(entry_name.replace(' ','_')),'utf-8').encode('utf-8')
-        if "http://dbpedia.org/ontology/wikiPageRedirects" in dbpedia_entry["data"]["http://dbpedia.org/resource/%s" % self.name]:
-            self.name = dbpedia_entry["data"]["http://dbpedia.org/resource/%s" % entry_name]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"].split('/')[-1].encode('utf-8')
-            self.entry = get_data_record(self.name, baseurl = "http://dbpedia.org/data/%s.jsond", name = "dbpedia")
+        if (len(dbpedia_entry["data"])) > 0:
+            if "http://dbpedia.org/ontology/wikiPageRedirects" in dbpedia_entry["data"]["http://dbpedia.org/resource/%s" % self.name]:
+                self.name = dbpedia_entry["data"]["http://dbpedia.org/resource/%s" % entry_name]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"].split('/')[-1].encode('utf-8')
+                self.entry = get_data_record(self.name, baseurl = "http://dbpedia.org/data/%s.jsond", name = "dbpedia")
 
     def _add_record(self, label, value, record):
         if type(value) == str or type(value) == unicode:
@@ -104,7 +105,10 @@ class DBPedia(object):
                         else:
                             ret[item.encode('utf-8')] = record[item]
                 if len(arg) == 1:
-                    return(ret[arg[0]])
+                    if (arg[0] in ret):
+                        return(ret[arg[0]])
+                    else:
+                        return(ret)
                 else:
                     return(ret)
             else:
@@ -147,8 +151,10 @@ def main(arguments):
     query = "_".join(args)
 
     if query != "":
-        dbpedia_entry = get_dbpedia_entry(query)
-        pprint(dbpedia_entry.parse("name"))
+        dbpedia_entry = DBPedia(query)
+        name = dbpedia_entry.parse("name")
+        if name:
+            pprint(dbpedia_entry.parse())
     else:
         sys.stdout.write("Did not get any arguments.\n")
         _usage(sys.stdout)
