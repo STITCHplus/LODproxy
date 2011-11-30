@@ -29,7 +29,7 @@ import backend
 
 from pprint import pprint
 
-backend.DEBUG = True
+backend.DEBUG = False
 
 @backend.backend
 def get_data_record(*args, **nargs):
