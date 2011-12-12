@@ -42,7 +42,16 @@ def get_data_record(*args, **nargs):
         record_name=record_name.split('/')[-1]
 
     url = baseurl % (urllib2.quote(record_name.replace(' ', '_')))
-    data = od.get_json(url)
+
+    if not "force_type" in nargs:
+        data = od.get_json(url)
+    else:
+        if nargs["force_type"] == "xml":
+            data = od.get_xml(url)
+        else:
+            data = od.get_json(url)
+
+
     #key = urllib2.quote(record_name)
     key = record_name
 
