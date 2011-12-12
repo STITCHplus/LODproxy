@@ -139,6 +139,10 @@ class OpenData(object):
         if response_type == "feed":
             try:
                 data = feedparser.parse(data)
+                try:
+                    data["feed"].pop("updated_parsed")
+                except:
+                    pass
                 log(self.__class__.__name__ + ": Converted raw data to feed object.")
                 #walker=data.iter()
                 #for item in walker:
