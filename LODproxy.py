@@ -48,6 +48,8 @@ def get_data_record(*args, **nargs):
     else:
         if nargs["force_type"] == "xml":
             data = od.get_xml(url)
+        elif nargs["force_type"] == "feed":
+            data = od.get_feed(url)
         else:
             data = od.get_json(url)
 
@@ -68,5 +70,16 @@ def get_data_record(*args, **nargs):
 
 
 if __name__ == "__main__":
-    record = get_data_record("Appel", baseurl = "http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/%s>&format=json", name = "dbpedia_sparql")
-    print(record)
+    #record = get_data_record("Appel", baseurl = "http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/%s>&format=json", name = "dbpedia_sparql")
+    #print(record)
+    backend.DEBUG=True
+    #try:
+    #    record = get_data_record("0743264738", baseurl = "http://www.librarything.com/api/thingISBN/%s", name = "LIBRARYTHING_ISBN", force_type = "xml")
+    #    pprint(record)
+    #except:
+    #    pass
+
+    #http://www.google.com/books/feeds/volumes/?q=Amsterdam
+    record = get_data_record("0743254748", baseurl = "http://www.google.com/books/feeds/volumes/?q=%s", name = "LIBRARYTHING_ISBN", force_type = "feed")
+    pprint(record)
+

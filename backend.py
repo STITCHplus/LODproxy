@@ -28,8 +28,10 @@ import tempfile
 import logging
 import urllib2
 import hashlib
+import feedparser
 
 from pprint import pprint
+
 
 
 try:
@@ -127,8 +129,22 @@ class OpenData(object):
             try:
                 data = xml_fromstring(data)
                 log(self.__class__.__name__ + ": Converted raw data to xmletree object.")
+                walker=data.iter()
+                for item in walker:
+                    print(item, item.tag, item.text)
             except:
                 log(self.__class__.__name__ + ": Error while converting raw data to xml.")
+                return(False, response_type)
+
+        if response_type == "feed":
+            try:
+                data = feedparser.parse(data)
+                log(self.__class__.__name__ + ": Converted raw data to feed object.")
+                #walker=data.iter()
+                #for item in walker:
+                #    print(item, item.tag, item.text)
+            except:
+                log(self.__class__.__name__ + ": Error while converting raw data to feed.")
                 return(False, response_type)
 
         if response_type == "json":
@@ -140,6 +156,9 @@ class OpenData(object):
                 return(False, response_type)
 
         return(data, response_type)
+
+    def get_feed(self, url):
+        return(self.get_data(url, "feed")[0])
 
     def get_json(self, url):
         return(self.get_data(url, "json")[0])
