@@ -227,6 +227,8 @@ class Pymongo(Storage):
     """
     def __init__(self, config):
         import string
+        from pymongo.bson import BSON
+        self.BSON = BSON
         Storage.__init__(self, config)
         try:
             port = string.atoi(config["portname_pymongo"])
@@ -243,6 +245,9 @@ class Pymongo(Storage):
         name = nargs["name"]
         record_key = hashlib.md5(name + "_" + key).hexdigest()
 
+        from pymongo import bson
+        from pymongo.binary import Binary
+
         data = Storage.get(self, record_key)
         if data: return(data)
         log(self.__class__.__name__ + ": Getting %s." % (record_key))
@@ -250,7 +255,7 @@ class Pymongo(Storage):
             for data in self.pymongo_db[name].find({"id" : record_key}):
                 data = data["data"]
                 log(self.__class__.__name__ + ": Got %s." % (record_key))
-                return(data)
+                return(self.BSON(data).to_dict())
         except:
             return(False)
 
@@ -260,8 +265,11 @@ class Pymongo(Storage):
         name = data["name"]
         record_key = name + "_" + key
         log(self.__class__.__name__ + ": Storing %s" % (record_key))
+        odata = data
+        from pymongo.binary import Binary
+        data = Binary(self.BSON.from_dict(data))
         self.pymongo_db[name].save({"id" : hashlib.md5(record_key).hexdigest(), "data" : data})
-        Storage.store(self, record_key, data)
+        Storage.store(self, record_key, odata)
 
 class Memcache(Storage):
     """

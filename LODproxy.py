@@ -80,6 +80,6 @@ if __name__ == "__main__":
     #    pass
 
     #http://www.google.com/books/feeds/volumes/?q=Amsterdam
-    #record = get_data_record("0743254748", baseurl = "http://www.google.com/books/feeds/volumes/?q=%s", name = "LIBRARYTHING_ISBN", force_type = "feed")
-    #pprint(record)
+    record = get_data_record("0743254748", baseurl = "http://www.google.com/books/feeds/volumes/?q=%s", name = "LIBRARYTHING_ISBN", force_type = "feed")
+    pprint(record)
 
