@@ -24,7 +24,7 @@ __author__ = "Willem Jan Faber"
 
 from LODproxy import *
 
-backend.DEBUG = False
+backend.DEBUG = True 
 
 
 def get_geoname_entry(entry_name):

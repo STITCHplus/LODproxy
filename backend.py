@@ -32,8 +32,6 @@ import feedparser
 
 from pprint import pprint
 
-
-
 try:
     from cjson import decode as loads
 except ImportError:
@@ -58,9 +56,11 @@ except ImportError:
         sys.stdout.write("Could not import xmllib, please install python-elementtree\n")
         sys.exit(-1)
 
-DEBUG = False
+DEBUG = True
 
 def log(message, log_level = logging.CRITICAL):
+
+    global DEBUG
     if DEBUG:
         logging.log(log_level, message)
 
@@ -166,7 +166,6 @@ class OpenData(object):
     def get_xml(self, url):
         return(self.get_data(url, "xml")[0])
 
-
 class Storage():
     config = {}
     data = {}
@@ -177,36 +176,42 @@ class Storage():
 
     def get(self, *args, **nargs):
         key = args[0]
-        log(self.__class__.__name__ + ": Getting %s." % (key))
+        log(self.__class__.__name__ + ": Getting %s (mem)." % (key))
         if key in self.data:
             if not self.data[key] == None:
-                log(self.__class__.__name__ + ": Got %s." % (key))
+                log(self.__class__.__name__ + ": Got %s (mem)." % (key))
             else:
                 log(self.__class__.__name__ + ": No data for %s." % (key))
                 return(False)
             return(self.data[key])
         else:
-            log(self.__class__.__name__ + ": No data for %s." % (key))
+            log(self.__class__.__name__ + ": No data for %s (mem)." % (key))
             return(False)
     
     def store(self, key, data=""):
+        log(self.__class__.__name__ + ": Storing %s (mem)." % (key))
         if not key in self.data:
             if len(self.data.keys()) > self.MAX_INMEM-1:
                 r = self.data.keys()[0]
                 self.data.pop(r)
             self.data[key] = data
-            log("Storing %s via backend : %s." % (key, self.__class__.__name__))
         return(True)
 
     def is_sane(self):
         log("%s: Running sanity test." % (self.__class__.__name__))
-        self.store("test", {"name" : "test", "data" : "appel"})
-        self.data = {}
         data = self.get("test", name="test")
-        self.data = {}
         if type(data) == dict:
-            log("%s: Is sane." % (self.__class__.__name__))
-            return(True)
+            if "data" in data:
+                if data["data"] == "appel":
+                    log("%s: Is sane." % (self.__class__.__name__))
+                    return(True)
+
+        self.store("test", {"name" : "test", "data" : "appel"})
+        data = self.get("test", name="test")
+        if type(data) == dict:
+            if data["data"] == "appel":
+                log("%s: Is sane." % (self.__class__.__name__))
+                return(True)
         log("%s: Is not sane." % (self.__class__.__name__))
         return(False)
 
@@ -215,8 +220,54 @@ class Files(Storage):
     def __init__(self, config):
         Storage.__init__(self, config)
 
+class Pymongo(Storage):
+    """
+        Mongodb store backend.
+
+    """
+    def __init__(self, config):
+        import string
+        Storage.__init__(self, config)
+        try:
+            port = string.atoi(config["portname_pymongo"])
+        except ValueError:
+            sys.stdout.write("Mongodb portname must be Integer.\nExit with errors.\n")
+            sys.exit(-1)
+
+        self.pymongo_handler = pymongo.Connection(config["hostname_pymongo"], port)
+        self.pymongo_db = self.pymongo_handler["lod_proxy"]
+        #.Client(["%s:%s" % (config["hostname_memcache"], config["portname_memcache"])])
+
+    def get(self, *args, **nargs):
+        key = args[0]
+        name = nargs["name"]
+        record_key = hashlib.md5(name + "_" + key).hexdigest()
+
+        data = Storage.get(self, record_key)
+        if data: return(data)
+        log(self.__class__.__name__ + ": Getting %s." % (record_key))
+        try:
+            for data in self.pymongo_db[name].find({"id" : record_key}):
+                data = data["data"]
+                log(self.__class__.__name__ + ": Got %s." % (record_key))
+                return(data)
+        except:
+            return(False)
+
+    def store(self, *args, **nargs):
+        key = args[0]
+        data = args[1]
+        name = data["name"]
+        record_key = name + "_" + key
+        log(self.__class__.__name__ + ": Storing %s" % (record_key))
+        self.pymongo_db[name].save({"id" : hashlib.md5(record_key).hexdigest(), "data" : data})
+        Storage.store(self, record_key, data)
+
 class Memcache(Storage):
-    # mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    """
+        Memcache store backend.
+
+    """
     def __init__(self, config):
         Storage.__init__(self, config)
         self.mc_handler = memcache.Client(["%s:%s" % (config["hostname_memcache"], config["portname_memcache"])])
@@ -284,11 +335,13 @@ class backend(object):
     current_backend = False
 
     #prefered_backends = "pymongo", "couchdb", "sqlite3", "memcache", "pickle", "files"
-    prefered_backends = "memcache", "pickle", "files"
+    prefered_backends = "pymongo", "memcache", "pickle", "files"
 
     config = {"tmp_path" : tempfile.gettempdir()+os.sep+"lod",
               "hostname_memcache" : "127.0.0.1",
-              "portname_memcache" : "11211"}
+              "portname_memcache" : "11211",
+              "hostname_pymongo" : "127.0.0.1",
+              "portname_pymongo" : "27017"}
 
     def __init__(self, func, *arg, **narg):
         self.func = func
