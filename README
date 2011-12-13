@@ -10,50 +10,28 @@ Program gets linked open data from a lod source, and parses it from xml or json 
  fixed issues:
     backend support for memcache.
     backend support for pickle.
+    backend support for mongodb.
 
 --
  todo:
     improve error handling.
-    is_sane for pickle module. 
     test xml source.
     sqlite backend.
+    threaded store in available backends.
     
 --
- demo output:
 
-CRITICAL:root:Memcache: Running sanity test.
-CRITICAL:root:Memcache: Storing test_test
-CRITICAL:root:Storing test_test via backend : Memcache
-CRITICAL:root:Memcache: Getting test_test
-CRITICAL:root:Memcache: No data for test_test
-CRITICAL:root:Memcache: Is not sane.
-CRITICAL:root:backend: Memcache Failed backend sanity test.
-CRITICAL:root:Pickle: Running sanity test.
-CRITICAL:root:Storing test via backend : Pickle
-CRITICAL:root:Pickle: Storing test into /tmp/lod/test/098f6bcd4621d373cade4e832627b4f6
-CRITICAL:root:Pickle: Reading 53 bytes for test from /tmp/lod/test/098f6bcd4621d373cade4e832627b4f6
-CRITICAL:root:Pickle: Getting test
-CRITICAL:root:Pickle: Got test
-CRITICAL:root:Pickle: Is sane.
-CRITICAL:root:backend: Setting backend to pickle
-Did not get any arguments.
+Example output dbpedia.py
 
-Dbpedia a easy to use library to get a dbpedia record, cache and parse it.
-    Usage: dbpedia <dbpedia_identifier>
+    Did not get any arguments.
 
-Running demo..
+    Dbpedia a easy to use library to get a dbpedia record, cache and parse it.
+        Usage: dbpedia <dbpedia_identifier>
 
-CRITICAL:root:Pickle: Reading 1113 bytes for Einstein from /tmp/lod/dbpedia/654a9672469401ce8348a194f7c5e329
-CRITICAL:root:Pickle: Getting Einstein
-CRITICAL:root:Pickle: Got Einstein
-CRITICAL:root:Pickle: Reading 75850 bytes for Albert_Einstein from /tmp/lod/dbpedia/8441a03ddc6671094833df4f0317ac44
-CRITICAL:root:Pickle: Getting Albert_Einstein
-CRITICAL:root:Pickle: Got Albert_Einstein
-Einstein, Albert, Albert Einstein
-Albert Einstein was een Duits-Zwitsers-Amerikaanse theoretisch natuurkundige en uitvinder. Hij wordt algemeen gezien als een van de belangrijkste natuurkundigen uit de geschiedenis, naast Isaac Newton en James Clerk Maxwell. Zelf noemde hij altijd Newton als een veel belangrijker natuurkundige dan hijzelf, omdat Newton anders dan Einstein behalve theoretische ook grote experimentele ontdekkingen deed. In het dagelijks leven is de naam Einstein synoniem geworden met grote intelligentie. Einstein werd vooral bekend vanwege de twee relativiteitstheorieën: de speciale relativiteitstheorie van 1905 en de algemene relativiteitstheorie van 1915 en volgende jaren, die de speciale relativiteitstheorie uitbreidt door ook plaats in te ruimen voor de zwaartekracht. Hij publiceerde meer dan 300 wetenschappelijke en meer dan 150 niet-wetenschappelijke werken. In zijn latere jaren schreef Einstein uitvoerig over filosofische en politieke onderwerpen. Hij wordt vaak samen met Max Planck beschouwd als de vader van de moderne natuurkunde. Hij droeg aanzienlijk bij aan andere deelgebieden van de natuurkunde: voor zijn verklaring van het foto-elektrisch effect ontving hij in 1921 de Nobelprijs voor de Natuurkunde en ook zijn beschrijving van de Brownse beweging en de eerste fluctuatie-dissipatiestelling was een belangrijke doorbraak. Deze twee verklaringen en de speciale relativiteitstheorie publiceerde hij bovendien allemaal in zijn wonderjaar 1905. Verder werk omvat onder meer onderwerpen in de kwantummechanica, de theorie van de vaste stof, de nulpuntsenergie, de statistische mechanica, de kosmologie, de theorie van straling en de veldentheorie. Een eenheid in de fotochemie draagt zijn naam, de einstein. Het chemisch element einsteinium is ook naar hem vernoemd, net als de Einsteinring in de astronomie en de Einsteincoëfficiënten in de optica. Albert Einstein werd in een liberaal-Joodse familie in het Duitse Keizerrijk geboren, woonde later in Italië, Zwitserland en het toenmalige Oostenrijk-Hongarije voor hij terugkeerde naar Duitsland. Toen Adolf Hitler in 1933 in Duitsland aan de macht kwam, besloot Einstein zich in de VS te vestigen. In 1940 nam hij de Amerikaanse nationaliteit aan en deed afstand van zijn Duitse (hij behield wel de Zwitserse). Hij overleed op 18 april 1955 in Princeton aan een aneurysma.
-Mileva Marić
-CRITICAL:root:Pickle: Reading 29443 bytes for Mileva Marić from /tmp/lod/dbpedia/20d32e6f9aeed3addff39fde4f55f7c7
-CRITICAL:root:Pickle: Getting Mileva Marić
-CRITICAL:root:Pickle: Got Mileva Marić
-Mileva Marić was een natuurkundige en de eerste echtgenote van Albert Einstein en de moeder van zijn drie kinderen.
+    Running demo..
+
+    Getting Einstein..
+     Einstein, Albert, Albert Einstein
+    Getting spouse of Einstein..
+     Mileva Marić was een natuurkundige en de eerste echtgenote van Albert Einstein en de moeder van zijn drie kinderen.
 
