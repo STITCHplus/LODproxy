@@ -239,10 +239,13 @@ class Pymongo(Storage):
         except ValueError:
             sys.stdout.write("Mongodb portname must be Integer.\nExit with errors.\n")
             sys.exit(-1)
-
-        self.pymongo_handler = pymongo.Connection(config["hostname_pymongo"], port)
-        self.pymongo_db = self.pymongo_handler["lod_proxy"]
-        #.Client(["%s:%s" % (config["hostname_memcache"], config["portname_memcache"])])
+        try:
+            self.pymongo_handler = pymongo.Connection(config["hostname_pymongo"], port)
+            self.pymongo_db = self.pymongo_handler["lod_proxy"]
+            #.Client(["%s:%s" % (config["hostname_memcache"], config["portname_memcache"])])
+        except:
+            raise EnvironmentError("Not sane")
+            
 
     def get(self, *args, **nargs):
         key = args[0]
@@ -352,7 +355,7 @@ class backend(object):
     config = {"tmp_path" : tempfile.gettempdir()+os.sep+"lod",
               "hostname_memcache" : "127.0.0.1",
               "portname_memcache" : "11211",
-              "hostname_pymongo" : "127.0.0.1",
+              "hostname_pymongo" : "192.87.165.3",
               "portname_pymongo" : "27017"}
 
     def __init__(self, func, *arg, **narg):
@@ -363,7 +366,10 @@ class backend(object):
                 try:
                     if getattr(sys.modules[__name__], backend.title()):
                         setattr(sys.modules[__name__], backend, module)
-                        self.current_backend = getattr(sys.modules[__name__], backend.title())(self.config)
+                        try:
+                            self.current_backend = getattr(sys.modules[__name__], backend.title())(self.config)
+                        except EnvironmentError:
+                            raise EnvironmentError("Not sane.")
                         if not self.current_backend.is_sane():
                             raise EnvironmentError("Not sane.")
                         if DEBUG:
