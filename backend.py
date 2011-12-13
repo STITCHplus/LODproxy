@@ -242,11 +242,9 @@ class Pymongo(Storage):
         try:
             self.pymongo_handler = pymongo.Connection(config["hostname_pymongo"], port)
             self.pymongo_db = self.pymongo_handler["lod_proxy"]
-            #.Client(["%s:%s" % (config["hostname_memcache"], config["portname_memcache"])])
         except:
-            raise EnvironmentError("Not sane")
+            raise EnvironmentError("Not sane.")
             
-
     def get(self, *args, **nargs):
         key = args[0]
         name = nargs["name"]
@@ -285,7 +283,10 @@ class Memcache(Storage):
     """
     def __init__(self, config):
         Storage.__init__(self, config)
-        self.mc_handler = memcache.Client(["%s:%s" % (config["hostname_memcache"], config["portname_memcache"])])
+        try:
+           self.mc_handler = memcache.Client(["%s:%s" % (config["hostname_memcache"], config["portname_memcache"])])
+        except:
+            raise EnvironmentError("Not sane.")
 
     def get(self, *args, **nargs):
         key = args[0]
