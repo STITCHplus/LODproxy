@@ -26,7 +26,7 @@ from LODproxy import *
 import sys
 from urllib2 import quote
 
-backend.DEBUG = True 
+#backend.DEBUG = True 
 
 
 def get_geoname_entry(entry_name):

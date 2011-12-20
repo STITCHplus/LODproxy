@@ -22,24 +22,39 @@
 
 __author__ = "Willem Jan Faber"
 
-from LODproxy import *
 import sys
+
+from LODproxy import *
 from urllib2 import quote
 from pprint import pprint
 
-backend.DEBUG = True 
+#backend.DEBUG = True 
 
-def get_google_isbn(isbn):
-    google_isbn = get_data_record(isbn, baseurl = "http://www.google.com/books/feeds/volumes/?q=ISBN<%s>", name = "google_isbn", force_type="feed")
-    return(google_isbn)
+def get_google_isbn(isbn = "9051609639"):
+    data = get_data_record(isbn, baseurl = "http://www.google.com/books/feeds/volumes/?q=ISBN<%s>", name = "google_isbn", force_type="feed")
+    return(data)
+
+def parse_google_isbn(data, record=0, *arg):
+    if len(arg) > 0:
+        ret = {}
+        for item in arg:
+            if item in data["data"]["entries"][record].keys():
+                 ret[item] = data["data"]["entries"][0][item]
+        if len(arg) == 1:
+            return(ret[arg[0]])
+        else:
+            return(ret)
+    else:
+        return(data["data"]["entries"][record])
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        entry = "0743264738"
-        google_isbn = get_google_isbn(entry)
-        pprint(google_isbn)
+        data = get_google_isbn()
+        title = parse_google_isbn(data, 0, "title")
+        print(title)
+        pprint(parse_google_isbn(data).keys())
     else:
-        entry = quote(sys.argv[1])
-        gogole_isbn = get_google_isbn(entry)
-        pprint(google_isbn)
-
+        isbn = quote(sys.argv[1])
+        data = get_google_isbn(isbn)
+        data = parse_google_isbn(data)
+        pprint(data)

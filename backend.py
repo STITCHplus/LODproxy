@@ -56,7 +56,7 @@ except ImportError:
         sys.stdout.write("Could not import xmllib, please install python-elementtree\n")
         sys.exit(-1)
 
-DEBUG = True
+DEBUG = False
 
 def log(message, log_level = logging.CRITICAL):
 

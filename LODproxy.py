@@ -29,7 +29,7 @@ import backend
 
 from pprint import pprint
 
-backend.DEBUG = True
+backend.DEBUG = False
 
 @backend.backend
 def get_data_record(*args, **nargs):
@@ -72,7 +72,7 @@ def get_data_record(*args, **nargs):
 if __name__ == "__main__":
     #record = get_data_record("Appel", baseurl = "http://dbpedia.org/sparql?default-graph-uri=http://dbpedia.org&query=DESCRIBE+<http://dbpedia.org/resource/%s>&format=json", name = "dbpedia_sparql")
     #print(record)
-    backend.DEBUG = True
+    backend.DEBUG = False
     #try:
     #    record = get_data_record("0743264738", baseurl = "http://www.librarything.com/api/thingISBN/%s", name = "LIBRARYTHING_ISBN", force_type = "xml")
     #    pprint(record)

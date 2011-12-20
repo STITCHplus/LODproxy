@@ -41,8 +41,6 @@ __copyright__ = "Copyright (c) 2011 National library of the Netherlands, %s. All
 __licence__ = "GNU GPL"
 
 
-backend.DEBUG = True
-
 class DBPedia(object):
     def __init__(self, entry_name):
         self.entry = dbpedia_entry = get_data_record(entry_name, baseurl = "http://dbpedia.org/data/%s.json", name = "dbpedia")
