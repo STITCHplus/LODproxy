@@ -152,7 +152,7 @@ def main(arguments):
     query = "_".join(args)
 
     if query != "":
-        dbpedia_entry = DBPedia(query)
+        dbpedia_entry = DBPedia(query.replace(' ', '_'))
         name = dbpedia_entry.parse("name")
         if name:
             pprint(dbpedia_entry.parse())

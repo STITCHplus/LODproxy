@@ -23,6 +23,8 @@
 __author__ = "Willem Jan Faber"
 
 from LODproxy import *
+import sys
+from urllib2 import quote
 
 backend.DEBUG = True 
 
@@ -43,6 +45,12 @@ def parse_geoname_entry(entry_name, geoname_entry, record_numer = 0):
         print("Error while fetching record: %s" % entry_name)
 
 if __name__ == "__main__":
-    entry = "Utrecht"
-    geoname_entry = get_geoname_entry(entry)
-    parse_geoname_entry(entry, geoname_entry)
+    if len(sys.argv) == 1:
+        entry = "Utrecht"
+        geoname_entry = get_geoname_entry(entry)
+        parse_geoname_entry(entry, geoname_entry)
+    else:
+        entry = quote(sys.argv[1])
+        geoname_entry = get_geoname_entry(entry)
+        parse_geoname_entry(entry, geoname_entry)
+

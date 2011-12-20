@@ -41,7 +41,7 @@ def get_data_record(*args, **nargs):
     if record_name.find('http://') > -1:
         record_name=record_name.split('/')[-1]
 
-    url = baseurl % (urllib2.quote(record_name.replace(' ', '_')))
+    url = baseurl % record_name
 
     if not "force_type" in nargs:
         data = od.get_json(url)

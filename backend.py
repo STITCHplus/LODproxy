@@ -240,7 +240,7 @@ class Pymongo(Storage):
             sys.stdout.write("Mongodb portname must be Integer.\nExit with errors.\n")
             sys.exit(-1)
         try:
-            self.pymongo_handler = pymongo.Connection(config["hostname_pymongo"], port)
+            self.pymongo_handler = pymongo.Connection(config["hostname_pymongo"], port, network_timeout=1)
             self.pymongo_db = self.pymongo_handler["lod_proxy"]
         except:
             raise EnvironmentError("Not sane.")
