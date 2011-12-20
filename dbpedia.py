@@ -49,6 +49,7 @@ class DBPedia(object):
         self.name = unicode(quote(entry_name.replace(' ','_')),'utf-8').encode('utf-8')
         if (len(dbpedia_entry["data"])) > 0:
             if "http://dbpedia.org/ontology/wikiPageRedirects" in dbpedia_entry["data"]["http://dbpedia.org/resource/%s" % self.name]:
+                entry_name = entry_name.replace(' ','_')
                 self.name = dbpedia_entry["data"]["http://dbpedia.org/resource/%s" % entry_name]["http://dbpedia.org/ontology/wikiPageRedirects"][0]["value"].split('/')[-1].encode('utf-8')
                 self.entry = get_data_record(self.name, baseurl = "http://dbpedia.org/data/%s.jsond", name = "dbpedia")
 
