@@ -113,8 +113,8 @@ class DBPedia(object):
             else:
                 return(record)
         else:
-            print("Error while fetching record: %s" % self.name)
-            return(False)
+            #print("Error while fetching record: %s" % self.name)
+            return({"Error" : "Unable to fetch " + self.name})
 
 def demo():
     entry = "Einstein"

@@ -29,28 +29,22 @@ from urllib2 import quote
 #backend.DEBUG = True 
 
 
-def get_geoname_entry(entry_name):
-    geoname_entry = get_data_record(entry_name, baseurl = "http://ws.geonames.org/searchJSON?q=%s", name = "geonames")
-    return(geoname_entry)
+class GEOnames():
+    def __init__(self, entry_name):
+        self.data = get_data_record(entry_name, baseurl = "http://ws.geonames.org/searchJSON?q=%s", name = "geonames")
+        self.entry_name = entry_name
 
-def parse_geoname_entry(entry_name, geoname_entry, record_numer = 0):
-    if not geoname_entry["error"]:
-        print(geoname_entry["data"].keys())
-        result = geoname_entry["data"]["geonames"][record_numer]
-        for item in result:
-            print("%12s : %s" % (item, result[item]))
-        else:
-            print("No entry for record: %s position %i"  % (entry_name, record_numer))
-    else:
-        print("Error while fetching record: %s" % entry_name)
+    def parse(self, record_numer = 0):
+        if not self.data["error"]:
+            result = self.data["data"]["geonames"][record_numer]
+            return(result)
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         entry = "Utrecht"
-        geoname_entry = get_geoname_entry(entry)
-        parse_geoname_entry(entry, geoname_entry)
+        geo = GEOnames(entry)
+        pprint(geo.parse())
     else:
         entry = quote(sys.argv[1])
-        geoname_entry = get_geoname_entry(entry)
-        parse_geoname_entry(entry, geoname_entry)
-
+        geo = GEOnames(entry)
+        pprint(geo.parse())

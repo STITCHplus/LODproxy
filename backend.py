@@ -30,7 +30,6 @@ import urllib2
 import hashlib
 import feedparser
 
-from pprint import pprint
 
 try:
     from cjson import decode as loads
@@ -56,7 +55,7 @@ except ImportError:
         sys.stdout.write("Could not import xmllib, please install python-elementtree\n")
         sys.exit(-1)
 
-DEBUG = False
+DEBUG = True
 
 def log(message, log_level = logging.CRITICAL):
 
@@ -70,7 +69,6 @@ class OpenData(object):
     def get_data(self, url, force_type = False):
     
         response_type = "unknown"
-        print(url)
         req = urllib2.Request(url = url, headers = self.headers)
         data = False
 
@@ -356,7 +354,8 @@ class backend(object):
     config = {"tmp_path" : tempfile.gettempdir()+os.sep+"lod",
               "hostname_memcache" : "127.0.0.1",
               "portname_memcache" : "11211",
-              "hostname_pymongo" : "192.87.165.3",
+              "hostname_pymongo" : "127.0.0.1",
+              #"hostname_pymongo" : "192.87.165.3",
               "portname_pymongo" : "27017"}
 
     def __init__(self, func, *arg, **narg):
