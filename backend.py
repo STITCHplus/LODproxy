@@ -229,7 +229,10 @@ class Pymongo(Storage):
     """
     def __init__(self, config):
         import string
-        from pymongo.bson import BSON
+        try:
+            from pymongo.bson import BSON
+        except:
+            from bson import BSON
         self.BSON = BSON
         Storage.__init__(self, config)
         try:
@@ -247,10 +250,6 @@ class Pymongo(Storage):
         key = args[0]
         name = nargs["name"]
         record_key = hashlib.md5(name + "_" + key).hexdigest()
-
-        from pymongo import bson
-        from pymongo.binary import Binary
-
         data = Storage.get(self, record_key)
         if data: return(data)
         log(self.__class__.__name__ + ": Getting %s." % (record_key))
